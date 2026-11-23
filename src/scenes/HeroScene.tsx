@@ -12,7 +12,7 @@ function Probe({ still }: { still: boolean }) {
   const { viewport, pointer } = useThree();
   // Fit the model to the visible area so it never clips at narrow widths.
   const size = Math.min(5.2, viewport.width * 0.7, viewport.height * 0.7);
-  const offsetX = viewport.width > viewport.height ? viewport.width * 0.14 : 0;
+  const offsetX = viewport.width > viewport.height ? viewport.width * 0.22 : 0;
   useFrame((_, dt) => {
     if (!ref.current || still) return;
     ref.current.rotation.y += dt * 0.1;
@@ -21,7 +21,7 @@ function Probe({ still }: { still: boolean }) {
   });
   return (
     <Float enabled={!still} speed={1.2} rotationIntensity={0.25} floatIntensity={0.6}>
-      <group ref={ref} position={[offsetX, 0.5, 0]} rotation={[0.3, -0.9, 0.1]}>
+      <group ref={ref} position={[offsetX, 0.8, 0]} rotation={[0.3, -0.9, 0.1]}>
         <VoyagerModel size={size} />
       </group>
     </Float>
