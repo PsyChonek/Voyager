@@ -1,10 +1,10 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import type { Group } from 'three';
 import { VoyagerModel } from './VoyagerModel';
 import { useInView } from './useInView';
-import { hasWebGL, prefersReducedMotion } from '~/lib/motion';
+import { useReducedMotion, useWebGL } from '~/lib/motion';
 
 function Spinning({ still }: { still: boolean }) {
   const ref = useRef<Group>(null);
@@ -15,8 +15,8 @@ function Spinning({ still }: { still: boolean }) {
     ref.current.position.y = still ? 0 : Math.sin(t * 0.4) * 0.08;
   });
   return (
-    <group ref={ref} rotation={[0.35, -0.9, 0.1]}>
-      <VoyagerModel size={5.2} />
+    <group ref={ref} position={[1.3, 0, 0]} rotation={[0.35, -0.9, 0.1]}>
+      <VoyagerModel size={4.2} />
     </group>
   );
 }
@@ -24,13 +24,8 @@ function Spinning({ still }: { still: boolean }) {
 export default function HeroScene({ label, noWebgl }: { label: string; noWebgl: string }) {
   const wrap = useRef<HTMLDivElement>(null);
   const inView = useInView(wrap);
-  const [support, setSupport] = useState<boolean | null>(null);
-  const [still, setStill] = useState(false);
-
-  useEffect(() => {
-    setSupport(hasWebGL());
-    setStill(prefersReducedMotion());
-  }, []);
+  const support = useWebGL();
+  const still = useReducedMotion();
 
   return (
     <div ref={wrap} className="hero-canvas" role="img" aria-label={label}>

@@ -7,7 +7,7 @@ let sentry: Promise<typeof import('@sentry/browser')> | null = null;
 export function initErrorReporting(): void {
   if (!dsn || sentry) return;
   sentry = import('@sentry/browser').then((mod) => {
-    mod.init({ dsn, tracesSampleRate: 0, sendDefaultPii: false });
+    mod.init({ dsn, tracesSampleRate: 0 });
     return mod;
   });
 }

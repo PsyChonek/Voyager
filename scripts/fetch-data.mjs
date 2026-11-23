@@ -37,7 +37,7 @@ async function fetchText(url, attempts = 4) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.text();
     } catch (err) {
-      if (i >= attempts) throw new Error(`${url}: ${err.message}`);
+      if (i >= attempts) throw new Error(`${url}: ${err.message}`, { cause: err });
       await new Promise((r) => setTimeout(r, 2000 * i));
     }
   }

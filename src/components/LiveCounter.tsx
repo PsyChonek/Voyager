@@ -48,7 +48,8 @@ function Craft({
   const km = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
   const au = new Intl.NumberFormat(locale, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
   const sp = new Intl.NumberFormat(locale, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-  const pct = Math.min(100, (state.fromEarth / LIGHT_DAY_KM) * 100);
+  const ratio = (state.fromEarth / LIGHT_DAY_KM) * 100;
+  const pct = Math.min(100, ratio);
   return (
     <section className={`craft craft-${id}${primary ? ' primary' : ''}`} aria-label={name}>
       <h2 className="craft-name">{name}</h2>
@@ -80,10 +81,10 @@ function Craft({
         <div className="lightday">
           <div className="lightday-label">
             <span>{labels.lightDayProgress}</span>
-            <span className="mono">{pct.toFixed(2)} %</span>
+            <span className="mono">{ratio.toFixed(3)} %</span>
           </div>
           <div
-            className="bar"
+            className="ld-bar"
             role="progressbar"
             aria-label={labels.lightDayProgress}
             aria-valuemin={0}

@@ -1,6 +1,6 @@
-import { useMemo, useRef, type ComponentRef, type MutableRefObject } from 'react';
+import { useMemo, useRef, type ComponentRef, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, Line } from '@react-three/drei';
+import { Line } from '@react-three/drei';
 import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh } from 'three';
 import { indexAt, positionAt, type Track, type Vec3 } from '~/lib/ephemeris';
 import { radius, toScene, type ScaleMode } from '~/lib/scale';
@@ -40,18 +40,16 @@ export const CRAFT: { key: BodyKey; color: string }[] = [
 ];
 
 /** Live scene positions, written every frame and read by camera directors. */
-export type PositionMap = Map<BodyKey, { pos: Vec3; visible: boolean }>;
+export type PositionMap = Map<BodyKey | 'hp', { pos: Vec3; visible: boolean; opacity?: number }>;
 
 type Props = {
   tracks: Record<string, Track>;
-  dayRef: MutableRefObject<number>;
+  dayRef: RefObject<number>;
   mode: ScaleMode;
   craft: BodyKey[];
-  labels: Partial<Record<BodyKey, string>>;
-  positions: MutableRefObject<PositionMap>;
+  positions: RefObject<PositionMap>;
   showTrails?: boolean;
-  heliosphereRef?: MutableRefObject<number>;
-  heliosphereLabels?: { ts: string; hp: string };
+  heliosphereRef?: RefObject<number>;
 };
 
 function scaledTrack(track: Track, mode: ScaleMode): Vec3[] {
@@ -94,7 +92,6 @@ function Body({
   name,
   color,
   size,
-  label,
   track,
   dayRef,
   mode,
@@ -104,15 +101,13 @@ function Body({
   name: BodyKey;
   color: string;
   size: number;
-  label?: string;
   track: Track;
-  dayRef: MutableRefObject<number>;
+  dayRef: RefObject<number>;
   mode: ScaleMode;
-  positions: MutableRefObject<PositionMap>;
+  positions: RefObject<PositionMap>;
   isCraft: boolean;
 }) {
   const group = useRef<Group>(null);
-  const tag = useRef<HTMLDivElement>(null);
   const au = useRef<Vec3>([0, 0, 0]);
   const scene = useRef<Vec3>([0, 0, 0]);
 
@@ -124,7 +119,6 @@ function Body({
       group.current.visible = visible;
       group.current.position.set(scene.current[0], scene.current[1], scene.current[2]);
     }
-    if (tag.current) tag.current.style.display = visible ? '' : 'none';
   });
 
   return (
@@ -145,22 +139,6 @@ function Body({
           <meshBasicMaterial color={color} transparent opacity={0.5} side={2} />
         </mesh>
       )}
-      {label && (
-        <Html
-          position={[0, size + 0.25, 0]}
-          center
-          zIndexRange={[10, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div
-            ref={tag}
-            className={isCraft ? 'scene-tag scene-tag-craft' : 'scene-tag'}
-            style={{ color }}
-          >
-            {label}
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -174,7 +152,7 @@ function Trail({
 }: {
   track: Track;
   color: string;
-  dayRef: MutableRefObject<number>;
+  dayRef: RefObject<number>;
   mode: ScaleMode;
   showTrails: boolean;
 }) {
@@ -225,26 +203,26 @@ function Orbit({ track, color, mode }: { track: Track; color: string; mode: Scal
 function Heliosphere({
   mode,
   strength,
-  labels,
+  positions,
 }: {
   mode: ScaleMode;
-  strength: MutableRefObject<number>;
-  labels?: { ts: string; hp: string };
+  strength: RefObject<number>;
+  positions: RefObject<PositionMap>;
 }) {
   const ts = useMemo(() => rimShader('#ff9d5c'), []);
   const hp = useMemo(() => rimShader('#7aa8ff'), []);
   const tsMesh = useRef<Mesh>(null);
-  const tags = useRef<HTMLDivElement>(null);
   useFrame(() => {
     const s = strength.current;
     ts.uniforms.uOpacity.value = 0.55 * s;
     hp.uniforms.uOpacity.value = 0.7 * s;
-    if (tags.current) tags.current.style.opacity = String(s);
+    positions.current.set('hp', { pos: hpTop, visible: s > 0.05, opacity: s });
   });
   // The real heliosphere is not a sphere: the radii are the crossing distances
   // measured by the Voyagers (termination shock ~90 AU, heliopause ~120 AU).
   const rTs = radius(90, mode);
   const rHp = radius(120, mode);
+  const hpTop: Vec3 = [0, rHp, 0];
   return (
     <group>
       <mesh ref={tsMesh} material={ts}>
@@ -253,18 +231,6 @@ function Heliosphere({
       <mesh material={hp}>
         <sphereGeometry args={[rHp, 64, 32]} />
       </mesh>
-      {labels && (
-        <Html
-          position={[0, rHp + 1, 0]}
-          center
-          zIndexRange={[10, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div ref={tags} className="scene-tag" style={{ color: '#9fbcff', opacity: 0 }}>
-            {labels.hp}
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -293,11 +259,9 @@ export function SolarSystem({
   dayRef,
   mode,
   craft,
-  labels,
   positions,
   showTrails = true,
   heliosphereRef,
-  heliosphereLabels,
 }: Props) {
   const planetScale = mode === 'log' ? 1 : 0.6;
   return (
@@ -310,7 +274,6 @@ export function SolarSystem({
             name={p.key}
             color={p.color}
             size={p.size * planetScale}
-            label={labels[p.key]}
             track={tracks[p.key]}
             dayRef={dayRef}
             mode={mode}
@@ -332,7 +295,6 @@ export function SolarSystem({
             name={c.key}
             color={c.color}
             size={0.22}
-            label={labels[c.key]}
             track={tracks[c.key]}
             dayRef={dayRef}
             mode={mode}
@@ -342,7 +304,7 @@ export function SolarSystem({
         </group>
       ))}
       {heliosphereRef && (
-        <Heliosphere mode={mode} strength={heliosphereRef} labels={heliosphereLabels} />
+        <Heliosphere mode={mode} strength={heliosphereRef} positions={positions} />
       )}
     </group>
   );

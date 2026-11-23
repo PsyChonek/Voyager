@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentRef, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { Vector3 } from 'three';
 import { loadEphemeris, positionAt, type Track, type Vec3 } from '~/lib/ephemeris';
 import { dateFromDay, dayFromDate, dayFromIso } from '~/lib/time';
-import { hasWebGL, prefersReducedMotion } from '~/lib/motion';
+import { useWebGL } from '~/lib/motion';
 import { reportError } from '~/lib/errors';
 import type { ScaleMode } from '~/lib/scale';
 import { CRAFT, PLANETS, SolarSystem, type BodyKey, type PositionMap } from './SolarSystem';
 import { useInView } from './useInView';
+import { LabelOverlay, LabelProjector, type LabelSpec } from './SceneLabels';
 
 type OrbitControlsImpl = ComponentRef<typeof OrbitControls>;
 
@@ -57,7 +58,7 @@ function Follower({
   controls,
 }: {
   follow: BodyKey | 'sun';
-  positions: React.MutableRefObject<PositionMap>;
+  positions: RefObject<PositionMap>;
   controls: React.RefObject<OrbitControlsImpl | null>;
 }) {
   const { camera } = useThree();
@@ -97,7 +98,7 @@ function Clock({
   speed,
   onTick,
 }: {
-  dayRef: React.MutableRefObject<number>;
+  dayRef: RefObject<number>;
   playing: boolean;
   speed: number;
   onTick: (day: number) => void;
@@ -120,7 +121,7 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
   const wrap = useRef<HTMLDivElement>(null);
   const inView = useInView(wrap, '0px');
   const [tracks, setTracks] = useState<Record<string, Track> | null>(null);
-  const [support, setSupport] = useState<boolean | null>(null);
+  const support = useWebGL();
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(90);
   const [mode, setMode] = useState<ScaleMode>('log');
@@ -131,11 +132,18 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
   const positions = useRef<PositionMap>(new Map());
   const helio = useRef(0.6);
   const controls = useRef<OrbitControlsImpl>(null);
+  const labelEls = useRef(new Map<string, HTMLSpanElement>());
+  const labelSpecs: LabelSpec[] = [
+    ...[...CRAFT, ...PLANETS].map((b) => ({
+      key: b.key,
+      text: labels.bodies[b.key],
+      color: b.color,
+      craft: CRAFT.some((c) => c.key === b.key),
+    })),
+    { key: 'hp', text: labels.heliopause, color: '#9fbcff' },
+  ];
 
   useEffect(() => {
-    const ok = hasWebGL();
-    setSupport(ok);
-    if (prefersReducedMotion()) setSpeed(30);
     loadEphemeris()
       .then(setTracks)
       .catch((e) => reportError(e, { scene: 'explorer' }));
@@ -192,12 +200,11 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
               dayRef={dayRef}
               mode={mode}
               craft={ALL_CRAFT}
-              labels={labels.bodies}
               positions={positions}
               showTrails={trails}
               heliosphereRef={helio}
-              heliosphereLabels={{ ts: labels.terminationShock, hp: labels.heliopause }}
             />
+            <LabelProjector positions={positions} els={labelEls} />
             <OrbitControls
               ref={controls}
               enableDamping
@@ -218,6 +225,7 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
             />
           </Canvas>
         )}
+        {support && tracks && <LabelOverlay labels={labelSpecs} els={labelEls} />}
       </div>
 
       <div className="explorer-controls panel">

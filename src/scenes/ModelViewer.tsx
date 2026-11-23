@@ -1,9 +1,9 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { VoyagerModel } from './VoyagerModel';
 import { useInView } from './useInView';
-import { hasWebGL, prefersReducedMotion } from '~/lib/motion';
+import { useReducedMotion, useWebGL } from '~/lib/motion';
 
 export default function ModelViewer({
   label,
@@ -16,13 +16,8 @@ export default function ModelViewer({
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const inView = useInView(wrap);
-  const [support, setSupport] = useState<boolean | null>(null);
-  const [still, setStill] = useState(false);
-
-  useEffect(() => {
-    setSupport(hasWebGL());
-    setStill(prefersReducedMotion());
-  }, []);
+  const support = useWebGL();
+  const still = useReducedMotion();
 
   return (
     <div ref={wrap} className="model-viewer" role="img" aria-label={label}>

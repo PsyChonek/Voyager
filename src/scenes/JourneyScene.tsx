@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import { Vector3 } from 'three';
 import { loadEphemeris, type Track, type Vec3 } from '~/lib/ephemeris';
 import { dateFromDay, dayFromIso } from '~/lib/time';
-import { hasWebGL, prefersReducedMotion } from '~/lib/motion';
+import { useReducedMotion, useWebGL } from '~/lib/motion';
 import { reportError } from '~/lib/errors';
-import { SolarSystem, type BodyKey, type PositionMap } from './SolarSystem';
+import { CRAFT, PLANETS, SolarSystem, type BodyKey, type PositionMap } from './SolarSystem';
 import { useInView } from './useInView';
+import { LabelOverlay, LabelProjector, type LabelSpec } from './SceneLabels';
 
 type Chapter = { id: string; date: string };
 type Props = {
@@ -86,10 +87,10 @@ function Director({
   instant,
 }: {
   chapters: Chapter[];
-  progress: React.MutableRefObject<number>;
-  dayRef: React.MutableRefObject<number>;
-  positions: React.MutableRefObject<PositionMap>;
-  helio: React.MutableRefObject<number>;
+  progress: RefObject<number>;
+  dayRef: RefObject<number>;
+  positions: RefObject<PositionMap>;
+  helio: RefObject<number>;
   dateEl: React.RefObject<HTMLParagraphElement | null>;
   locale: string;
   instant: boolean;
@@ -163,23 +164,32 @@ export default function JourneyScene(props: Props) {
   const dateEl = useRef<HTMLParagraphElement>(null);
   const inView = useInView(wrap, '0px');
   const [tracks, setTracks] = useState<Record<string, Track> | null>(null);
-  const [support, setSupport] = useState<boolean | null>(null);
-  const [instant, setInstant] = useState(false);
-  const ids = useRef(props.chapters.map((c) => c.id));
-  const progress = useChapterProgress(ids.current);
+  const support = useWebGL();
+  const instant = useReducedMotion();
+  const ids = useMemo(() => props.chapters.map((c) => c.id), [props.chapters]);
+  const progress = useChapterProgress(ids);
   const dayRef = useRef(dayFromIso(props.chapters[0].date));
   const positions = useRef<PositionMap>(new Map());
   const helio = useRef(0);
+  const labelEls = useRef(new Map<string, HTMLSpanElement>());
+  const labelSpecs: LabelSpec[] = [
+    ...[...CRAFT, ...PLANETS]
+      .filter((b) => props.labels[b.key])
+      .map((b) => ({
+        key: b.key,
+        text: props.labels[b.key]!,
+        color: b.color,
+        craft: b.key.startsWith('v'),
+      })),
+    { key: 'hp', text: props.heliosphereLabels.hp, color: '#9fbcff' },
+  ];
 
   useEffect(() => {
-    const ok = hasWebGL();
-    setSupport(ok);
-    setInstant(prefersReducedMotion());
-    if (ok)
-      loadEphemeris()
-        .then(setTracks)
-        .catch((e) => reportError(e, { scene: 'journey' }));
-  }, []);
+    if (!support) return;
+    loadEphemeris()
+      .then(setTracks)
+      .catch((e) => reportError(e, { scene: 'journey' }));
+  }, [support]);
 
   return (
     <div ref={wrap} className="journey-canvas" role="img" aria-label={props.sceneLabel}>
@@ -198,11 +208,10 @@ export default function JourneyScene(props: Props) {
             dayRef={dayRef}
             mode="log"
             craft={['v1', 'v2']}
-            labels={props.labels}
             positions={positions}
             heliosphereRef={helio}
-            heliosphereLabels={props.heliosphereLabels}
           />
+          <LabelProjector positions={positions} els={labelEls} />
           <Director
             chapters={props.chapters}
             progress={progress}
@@ -215,6 +224,7 @@ export default function JourneyScene(props: Props) {
           />
         </Canvas>
       )}
+      {support && tracks && <LabelOverlay labels={labelSpecs} els={labelEls} />}
       <div className="journey-date" aria-hidden="true">
         <span>{props.dateLabel}</span>
         <p ref={dateEl} className="mono"></p>
