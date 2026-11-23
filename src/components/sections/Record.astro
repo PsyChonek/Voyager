@@ -71,6 +71,69 @@ const spots: Record<string, [number, number]> = {
       <p class="muted small">{r.musicNote}</p>
     </div>
   </div>
+  <div class="container more">
+    <div class="tabs" data-reveal>
+      <div class="tablist" role="tablist" aria-label={r.tabsLabel}>
+        {r.tabs.map((tab, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`rtab-${tab.id}`}
+            aria-controls={`rpanel-${tab.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {tab.count && <span class="tab-count mono">{tab.count}</span>}
+            {tab.title}
+          </button>
+        ))}
+      </div>
+      {r.tabs.map((tab, i) => (
+        <div
+          class="tabpanel panel"
+          role="tabpanel"
+          id={`rpanel-${tab.id}`}
+          aria-labelledby={`rtab-${tab.id}`}
+          tabindex="0"
+          hidden={i !== 0}
+        >
+          <p>{tab.body}</p>
+          <ul class="chips">
+            {tab.items.map((item, k) => (
+              <li style={`--k:${k}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div class="cards">
+      <article class="panel" data-reveal style="--i:0">
+        <h3>{r.makersTitle}</h3>
+        <p class="muted">{r.makersBody}</p>
+      </article>
+      <article class="panel" data-reveal style="--i:1">
+        <h3>{r.buildTitle}</h3>
+        <ul class="ticks">
+          {r.build.map((b) => (
+            <li>{b}</li>
+          ))}
+        </ul>
+      </article>
+      <article class="panel future" data-reveal style="--i:2">
+        <h3>{r.futureTitle}</h3>
+        <ul class="dest">
+          {r.future.map((f) => (
+            <li>
+              <strong class={f.craft.endsWith('1') ? 'c-v1' : 'c-v2'}>{f.craft}</strong>
+              <span class="muted">{f.text}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="quote">{r.saganNote}</p>
+      </article>
+    </div>
+  </div>
 </section>
 
 <script>
@@ -86,9 +149,132 @@ const spots: Record<string, [number, number]> = {
         .forEach((p) => (p.hidden = p.dataset.part !== id));
     });
   });
+
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('#record [role="tab"]'));
+  const select = (tab: HTMLButtonElement, focus = false) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls')!);
+      if (panel) panel.hidden = !on;
+    });
+    if (focus) tab.focus();
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (e) => {
+      const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (e.key === 'Home') select(tabs[0], true);
+      else if (e.key === 'End') select(tabs[tabs.length - 1], true);
+      else if (dir) select(tabs[(i + dir + tabs.length) % tabs.length], true);
+      else return;
+      e.preventDefault();
+    });
+  });
 </script>
 
 <style>
+  .more {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    display: grid;
+    gap: 2rem;
+  }
+  .tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  [role='tab'] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s var(--ease-out);
+  }
+  [role='tab']:hover {
+    color: var(--text);
+    border-color: rgb(255 181 71 / 0.5);
+  }
+  [role='tab'][aria-selected='true'] {
+    background: var(--grad-gold);
+    color: #1a0f00;
+    border-color: transparent;
+  }
+  .tab-count {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+  .tabpanel p {
+    max-width: 70ch;
+  }
+  .chips {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chips li {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgb(255 181 71 / 0.25);
+    background: rgb(255 181 71 / 0.06);
+    font-size: 0.92rem;
+    animation: chip-in 0.5s var(--ease-out) both;
+    animation-delay: calc(var(--k) * 45ms);
+  }
+  @keyframes chip-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+  }
+  .cards {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    align-items: start;
+  }
+  .ticks {
+    padding-left: 1.1rem;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--muted);
+  }
+  .ticks li::marker {
+    color: var(--accent);
+  }
+  .dest {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .dest li {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .quote {
+    margin: 0;
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--accent);
+    font-style: italic;
+  }
+
   .grid {
     display: grid;
     gap: 2.5rem;
