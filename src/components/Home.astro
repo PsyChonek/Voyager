@@ -2,6 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import Hero from './sections/Hero.astro';
 import Journey from './sections/Journey.astro';
+import Ticker from './sections/Ticker.astro';
 import Spacecraft from './sections/Spacecraft.astro';
 import DataTeaser from './sections/DataTeaser.astro';
 import Signal from './sections/Signal.astro';
@@ -41,6 +42,7 @@ const jsonLd = [
   jsonLd={jsonLd}
 >
   <Hero locale={locale} />
+  <Ticker locale={locale} />
   <Journey locale={locale} />
   <Spacecraft locale={locale} />
   <DataTeaser locale={locale} />

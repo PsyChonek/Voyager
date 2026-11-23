@@ -1,7 +1,21 @@
-import { useMemo, useRef, type ComponentRef, type RefObject } from 'react';
+import { Suspense, useMemo, useRef, type ComponentRef, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Line } from '@react-three/drei';
-import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh } from 'three';
+import { Line, useTexture } from '@react-three/drei';
+import {
+  AdditiveBlending,
+  CanvasTexture,
+  Color,
+  DoubleSide,
+  FrontSide,
+  RingGeometry,
+  SRGBColorSpace,
+  ShaderMaterial,
+  Vector3,
+  type Group,
+  type Mesh,
+  type Sprite,
+  type SpriteMaterial,
+} from 'three';
 import { indexAt, positionAt, type Track, type Vec3 } from '~/lib/ephemeris';
 import { radius, toScene, type ScaleMode } from '~/lib/scale';
 
@@ -50,6 +64,7 @@ type Props = {
   positions: RefObject<PositionMap>;
   showTrails?: boolean;
   heliosphereRef?: RefObject<number>;
+  animate?: boolean;
 };
 
 function scaledTrack(track: Track, mode: ScaleMode): Vec3[] {
@@ -64,7 +79,7 @@ function scaledTrack(track: Track, mode: ScaleMode): Vec3[] {
   return out;
 }
 
-const rimShader = (color: string) =>
+const rimShader = (color: string, power: number) =>
   new ShaderMaterial({
     uniforms: { uColor: { value: new Color(color) }, uOpacity: { value: 0 } },
     vertexShader: `
@@ -79,66 +94,168 @@ const rimShader = (color: string) =>
       uniform vec3 uColor; uniform float uOpacity;
       varying vec3 vNormal; varying vec3 vView;
       void main() {
-        float rim = pow(1.0 - abs(dot(vNormal, vView)), 2.5);
+        float rim = pow(1.0 - abs(dot(vNormal, vView)), ${power.toFixed(1)});
         gl_FragColor = vec4(uColor, rim * uOpacity);
       }`,
     transparent: true,
     depthWrite: false,
-    side: BackSide,
+    side: FrontSide,
     blending: AdditiveBlending,
   });
 
-function Body({
+/** Soft radial glow used for the Sun corona and spacecraft beacons. */
+function glowTexture(inner: string, outer: string): CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const ctx = c.getContext('2d')!;
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, inner);
+  g.addColorStop(0.25, outer);
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 128, 128);
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
+}
+
+function useBodyPosition(
+  name: BodyKey,
+  track: Track,
+  dayRef: RefObject<number>,
+  mode: ScaleMode,
+  positions: RefObject<PositionMap>,
+) {
+  const au = useRef<Vec3>([0, 0, 0]);
+  const scene = useRef<Vec3>([0, 0, 0]);
+  return (group: Group | null) => {
+    const visible = positionAt(track, dayRef.current, au.current);
+    if (visible) toScene(au.current, mode, scene.current);
+    positions.current.set(name, { pos: scene.current, visible });
+    if (group) {
+      group.visible = visible;
+      group.position.set(scene.current[0], scene.current[1], scene.current[2]);
+    }
+    return visible;
+  };
+}
+
+const tmp = new Vector3();
+
+function Planet({
   name,
-  color,
   size,
   track,
   dayRef,
   mode,
   positions,
-  isCraft,
+  spin,
 }: {
   name: BodyKey;
-  color: string;
   size: number;
   track: Track;
   dayRef: RefObject<number>;
   mode: ScaleMode;
   positions: RefObject<PositionMap>;
-  isCraft: boolean;
+  spin: boolean;
 }) {
   const group = useRef<Group>(null);
-  const au = useRef<Vec3>([0, 0, 0]);
-  const scene = useRef<Vec3>([0, 0, 0]);
+  const globe = useRef<Mesh>(null);
+  const place = useBodyPosition(name, track, dayRef, mode, positions);
+  const map = useTexture(`/textures/${name}.webp`);
+  map.colorSpace = SRGBColorSpace;
+  const ringMap = useTexture('/textures/saturn-ring.webp');
+  const ring = useMemo(() => {
+    if (name !== 'saturn') return null;
+    const geo = new RingGeometry(size * 1.25, size * 2.3, 96, 1);
+    const pos = geo.attributes.position;
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+      const r = Math.hypot(pos.getX(i), pos.getY(i));
+      uv.setXY(i, (r - size * 1.25) / (size * 1.05), 0.5);
+    }
+    return geo;
+  }, [name, size]);
 
-  useFrame(() => {
-    const visible = positionAt(track, dayRef.current, au.current);
-    if (visible) toScene(au.current, mode, scene.current);
-    positions.current.set(name, { pos: scene.current, visible });
-    if (group.current) {
-      group.current.visible = visible;
-      group.current.position.set(scene.current[0], scene.current[1], scene.current[2]);
+  useFrame(({ camera }, dt) => {
+    place(group.current);
+    if (!group.current) return;
+    // Keep tiny planets readable when the camera pulls far back.
+    const d = camera.position.distanceTo(group.current.getWorldPosition(tmp));
+    group.current.scale.setScalar(Math.max(1, (d * 0.0065) / size));
+    if (spin && globe.current) globe.current.rotation.y += dt * 0.15;
+  });
+
+  return (
+    <group ref={group}>
+      <mesh ref={globe} rotation={[0.2, 0, 0]}>
+        <sphereGeometry args={[size, 48, 32]} />
+        <meshStandardMaterial map={map} roughness={0.9} metalness={0} />
+      </mesh>
+      {ring && (
+        <mesh geometry={ring} rotation={[Math.PI / 2.25, 0, 0]}>
+          <meshStandardMaterial
+            map={ringMap}
+            alphaMap={ringMap}
+            transparent
+            side={DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+function Craft({
+  name,
+  color,
+  track,
+  dayRef,
+  mode,
+  positions,
+  pulse,
+}: {
+  name: BodyKey;
+  color: string;
+  track: Track;
+  dayRef: RefObject<number>;
+  mode: ScaleMode;
+  positions: RefObject<PositionMap>;
+  pulse: boolean;
+}) {
+  const group = useRef<Group>(null);
+  const halo = useRef<Sprite>(null);
+  const place = useBodyPosition(name, track, dayRef, mode, positions);
+  const tex = useMemo(() => glowTexture('#ffffff', color), [color]);
+
+  useFrame(({ camera, clock }) => {
+    place(group.current);
+    if (!group.current) return;
+    // Constant on-screen size, whatever the zoom.
+    const d = camera.position.distanceTo(group.current.getWorldPosition(tmp));
+    group.current.scale.setScalar(d * 0.028);
+    if (halo.current) {
+      const t = pulse ? (clock.elapsedTime * 0.8) % 1 : 0.4;
+      halo.current.scale.setScalar(1 + t * 2.2);
+      (halo.current.material as SpriteMaterial).opacity = 0.55 * (1 - t);
     }
   });
 
   return (
     <group ref={group}>
-      <mesh>
-        <sphereGeometry args={[size, 24, 16]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-      {isCraft && (
-        <mesh>
-          <sphereGeometry args={[size * 2.6, 16, 12]} />
-          <meshBasicMaterial color={color} transparent opacity={0.18} depthWrite={false} />
-        </mesh>
-      )}
-      {name === 'saturn' && (
-        <mesh rotation={[Math.PI / 2.3, 0, 0]}>
-          <ringGeometry args={[size * 1.35, size * 2.1, 48]} />
-          <meshBasicMaterial color={color} transparent opacity={0.5} side={2} />
-        </mesh>
-      )}
+      <sprite scale={0.9}>
+        <spriteMaterial map={tex} transparent depthWrite={false} blending={AdditiveBlending} />
+      </sprite>
+      <sprite ref={halo}>
+        <spriteMaterial
+          map={tex}
+          color={color}
+          transparent
+          depthWrite={false}
+          blending={AdditiveBlending}
+        />
+      </sprite>
     </group>
   );
 }
@@ -209,23 +326,22 @@ function Heliosphere({
   strength: RefObject<number>;
   positions: RefObject<PositionMap>;
 }) {
-  const ts = useMemo(() => rimShader('#ff9d5c'), []);
-  const hp = useMemo(() => rimShader('#7aa8ff'), []);
-  const tsMesh = useRef<Mesh>(null);
-  useFrame(() => {
-    const s = strength.current;
-    ts.uniforms.uOpacity.value = 0.55 * s;
-    hp.uniforms.uOpacity.value = 0.7 * s;
-    positions.current.set('hp', { pos: hpTop, visible: s > 0.05, opacity: s });
-  });
+  const ts = useMemo(() => rimShader('#ff9d5c', 4), []);
+  const hp = useMemo(() => rimShader('#6f9bff', 3), []);
   // The real heliosphere is not a sphere: the radii are the crossing distances
   // measured by the Voyagers (termination shock ~90 AU, heliopause ~120 AU).
   const rTs = radius(90, mode);
   const rHp = radius(120, mode);
-  const hpTop: Vec3 = [0, rHp, 0];
+  const hpTop = useMemo<Vec3>(() => [0, rHp, 0], [rHp]);
+  useFrame(() => {
+    const s = strength.current;
+    ts.uniforms.uOpacity.value = 0.22 * s;
+    hp.uniforms.uOpacity.value = 0.9 * s;
+    positions.current.set('hp', { pos: hpTop, visible: s > 0.05, opacity: s });
+  });
   return (
     <group>
-      <mesh ref={tsMesh} material={ts}>
+      <mesh material={ts}>
         <sphereGeometry args={[rTs, 64, 32]} />
       </mesh>
       <mesh material={hp}>
@@ -235,21 +351,29 @@ function Heliosphere({
   );
 }
 
-export function Sun() {
+export function Sun({ pulse }: { pulse: boolean }) {
+  const map = useTexture('/textures/sun.webp');
+  map.colorSpace = SRGBColorSpace;
+  const glow = useMemo(() => glowTexture('rgba(255,244,214,1)', 'rgba(255,160,60,0.55)'), []);
+  const corona = useRef<Sprite>(null);
+  const globe = useRef<Mesh>(null);
+  useFrame(({ camera, clock }, dt) => {
+    if (globe.current) globe.current.rotation.y += dt * 0.05;
+    if (!corona.current) return;
+    const d = camera.position.length();
+    const breathe = pulse ? 1 + Math.sin(clock.elapsedTime * 1.3) * 0.06 : 1;
+    corona.current.scale.setScalar(Math.max(7, d * 0.09) * breathe);
+  });
   return (
     <group>
-      <mesh>
-        <sphereGeometry args={[0.9, 32, 16]} />
-        <meshBasicMaterial color="#fff1c4" />
+      <mesh ref={globe}>
+        <sphereGeometry args={[0.9, 48, 32]} />
+        <meshBasicMaterial map={map} color="#ffd9a0" />
       </mesh>
-      <mesh>
-        <sphereGeometry args={[1.8, 32, 16]} />
-        <meshBasicMaterial color="#ffb547" transparent opacity={0.16} depthWrite={false} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[3.2, 32, 16]} />
-        <meshBasicMaterial color="#ff8a3d" transparent opacity={0.06} depthWrite={false} />
-      </mesh>
+      <sprite ref={corona}>
+        <spriteMaterial map={glow} transparent depthWrite={false} blending={AdditiveBlending} />
+      </sprite>
+      <pointLight intensity={2.6} decay={0} distance={0} color="#fff3df" />
     </group>
   );
 }
@@ -262,26 +386,29 @@ export function SolarSystem({
   positions,
   showTrails = true,
   heliosphereRef,
+  animate = true,
 }: Props) {
   const planetScale = mode === 'log' ? 1 : 0.6;
   return (
     <group>
-      <Sun />
-      {PLANETS.filter((p) => tracks[p.key]).map((p) => (
-        <group key={p.key}>
-          <Orbit track={tracks[p.key]} color={p.color} mode={mode} />
-          <Body
-            name={p.key}
-            color={p.color}
-            size={p.size * planetScale}
-            track={tracks[p.key]}
-            dayRef={dayRef}
-            mode={mode}
-            positions={positions}
-            isCraft={false}
-          />
-        </group>
-      ))}
+      <ambientLight intensity={0.12} />
+      <Suspense fallback={null}>
+        <Sun pulse={animate} />
+        {PLANETS.filter((p) => tracks[p.key]).map((p) => (
+          <group key={p.key}>
+            <Orbit track={tracks[p.key]} color={p.color} mode={mode} />
+            <Planet
+              name={p.key}
+              size={p.size * planetScale}
+              track={tracks[p.key]}
+              dayRef={dayRef}
+              mode={mode}
+              positions={positions}
+              spin={animate}
+            />
+          </group>
+        ))}
+      </Suspense>
       {CRAFT.filter((c) => craft.includes(c.key) && tracks[c.key]).map((c) => (
         <group key={c.key}>
           <Trail
@@ -291,15 +418,14 @@ export function SolarSystem({
             mode={mode}
             showTrails={showTrails}
           />
-          <Body
+          <Craft
             name={c.key}
             color={c.color}
-            size={0.22}
             track={tracks[c.key]}
             dayRef={dayRef}
             mode={mode}
             positions={positions}
-            isCraft
+            pulse={animate}
           />
         </group>
       ))}

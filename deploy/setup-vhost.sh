@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # One-time VM setup for voyager.vazac.dev. Reads the sudo password from stdin.
-# Usage (see mobile-app-website skill): upload with scp, pipe only the password in.
+# Usage: upload this script and the .nginx.conf to the deploy user's home with scp,
+# then pipe only the sudo password into `bash setup-vhost.sh` over SSH.
 set -euo pipefail
 IFS= read -r PW
 S() { printf '%s\n' "$PW" | sudo -S -p '' "$@"; }
 FQDN=voyager.vazac.dev
-CONF=$HOME/voyager.vazac.dev.nginx.conf
+OWNER="$(id -un)"
+CONF="$HOME/voyager.vazac.dev.nginx.conf"
 
 S mkdir -p /var/www/apps/$FQDN /var/cache/nginx/voyager-dsn
-S chown "$(id -un):$(id -un)" /var/www/apps/$FQDN
+S chown "$OWNER:$OWNER" /var/www/apps/$FQDN
 S chown nginx:nginx /var/cache/nginx/voyager-dsn 2>/dev/null || true
 S restorecon -R /var/www/apps/$FQDN /var/cache/nginx/voyager-dsn 2>/dev/null || true
 

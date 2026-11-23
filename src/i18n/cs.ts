@@ -51,6 +51,25 @@ const cs = {
       '3D model sondy Voyager: anténa o průměru 3,7 metru, rameno s přístroji a radioizotopové generátory.',
     noWebgl: 'Váš prohlížeč nepodporuje WebGL, zobrazujeme statický obrázek.',
   },
+  ticker: [
+    { value: '1977', label: 'rok startu obou sond' },
+    { value: '4', label: 'obří planety navštívené Voyagerem 2' },
+    { value: '160 b/s', label: 'dnešní rychlost vědeckých dat' },
+    { value: '23 W', label: 'výkon vysílače' },
+    { value: '3,7 m', label: 'průměr hlavní antény' },
+    { value: '24 h', label: 'cesta signálu od Voyageru 1' },
+    { value: '55', label: 'jazyků na Zlaté desce' },
+    { value: '2', label: 'sondy v mezihvězdném prostoru' },
+  ],
+  sections: {
+    journey: 'Cesta',
+    spacecraft: 'Sonda',
+    data: 'Data',
+    signal: 'Signál',
+    power: 'Energie',
+    record: 'Zlatá deska',
+    gallery: 'Galerie',
+  },
   journey: {
     title: 'Cesta',
     intro:
@@ -381,7 +400,7 @@ const cs = {
   footer: {
     sources: 'Zdroje',
     sourcesBody:
-      'Dráhy: NASA JPL Horizons. Měření: NASA SPDF COHOWeb (MAG, PLS, LECP, CRS). 3D model a snímky: NASA/JPL-Caltech, volné dílo. Živý stav antén: NASA DSN Now.',
+      'Dráhy: NASA JPL Horizons. Měření: NASA SPDF COHOWeb (MAG, PLS, LECP, CRS). 3D model a snímky: NASA/JPL-Caltech, volné dílo. Textury planet: Solar System Scope (CC BY 4.0). Živý stav antén: NASA DSN Now.',
     privacy:
       'Tento web nepoužívá cookies a nesbírá osobní údaje. Případná anonymní statistika návštěvnosti je bez cookies.',
     made: 'Nezávislý fanouškovský projekt, není spojený s NASA.',

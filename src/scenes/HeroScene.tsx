@@ -1,23 +1,30 @@
 import { Suspense, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Stars } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Float, Sparkles, Stars } from '@react-three/drei';
 import type { Group } from 'three';
 import { VoyagerModel } from './VoyagerModel';
+import { StudioLights } from './StudioLights';
 import { useInView } from './useInView';
 import { useReducedMotion, useWebGL } from '~/lib/motion';
 
-function Spinning({ still }: { still: boolean }) {
+function Probe({ still }: { still: boolean }) {
   const ref = useRef<Group>(null);
-  useFrame((state, dt) => {
-    if (!ref.current) return;
-    if (!still) ref.current.rotation.y += dt * 0.12;
-    const t = state.clock.elapsedTime;
-    ref.current.position.y = still ? 0 : Math.sin(t * 0.4) * 0.08;
+  const { viewport, pointer } = useThree();
+  // Fit the model to the visible area so it never clips at narrow widths.
+  const size = Math.min(5.2, viewport.width * 0.7, viewport.height * 0.7);
+  const offsetX = viewport.width > viewport.height ? viewport.width * 0.14 : 0;
+  useFrame((_, dt) => {
+    if (!ref.current || still) return;
+    ref.current.rotation.y += dt * 0.1;
+    // Gentle parallax towards the pointer.
+    ref.current.rotation.x += (0.3 + pointer.y * 0.15 - ref.current.rotation.x) * 0.04;
   });
   return (
-    <group ref={ref} position={[1.3, 0, 0]} rotation={[0.35, -0.9, 0.1]}>
-      <VoyagerModel size={4.2} />
-    </group>
+    <Float enabled={!still} speed={1.2} rotationIntensity={0.25} floatIntensity={0.6}>
+      <group ref={ref} position={[offsetX, 0.5, 0]} rotation={[0.3, -0.9, 0.1]}>
+        <VoyagerModel size={size} />
+      </group>
+    </Float>
   );
 }
 
@@ -34,16 +41,23 @@ export default function HeroScene({ label, noWebgl }: { label: string; noWebgl: 
         <Canvas
           frameloop={inView ? 'always' : 'never'}
           dpr={[1, 1.75]}
-          camera={{ position: [0, 0.6, 9], fov: 38 }}
-          gl={{ antialias: true, powerPreference: 'high-performance' }}
+          camera={{ position: [0, 0.4, 9], fov: 38 }}
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         >
-          <color attach="background" args={['#04060c']} />
-          <ambientLight intensity={0.35} />
-          <directionalLight position={[-8, 4, 6]} intensity={3.2} color="#fff4e0" />
-          <directionalLight position={[6, -2, -4]} intensity={0.6} color="#5ec8ff" />
-          <Stars radius={80} depth={40} count={2500} factor={3} fade speed={still ? 0 : 0.4} />
+          <Stars radius={80} depth={40} count={2500} factor={3} fade speed={still ? 0 : 0.6} />
+          {!still && (
+            <Sparkles
+              count={60}
+              scale={[12, 8, 6]}
+              size={2}
+              speed={0.25}
+              color="#ffd38a"
+              opacity={0.6}
+            />
+          )}
           <Suspense fallback={null}>
-            <Spinning still={still} />
+            <StudioLights />
+            <Probe still={still} />
           </Suspense>
         </Canvas>
       )}

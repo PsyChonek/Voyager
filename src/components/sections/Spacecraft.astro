@@ -1,5 +1,7 @@
 ---
 import ModelViewer from '~/scenes/ModelViewer';
+import SectionHead from '~/components/SectionHead.astro';
+
 import { useDict, type Locale } from '~/i18n';
 
 interface Props {
@@ -14,8 +16,13 @@ const status = (v: string | null) => (v === null ? '' : v === 'on' ? s.statusOn 
 <section id="spacecraft" class="section" aria-labelledby="spacecraft-title">
   <div class="container grid">
     <div>
-      <h2 id="spacecraft-title">{s.title}</h2>
-      <p class="lead">{s.intro}</p>
+      <SectionHead
+        num={2}
+        label={t.sections.spacecraft}
+        id="spacecraft-title"
+        title={s.title}
+        lead={s.intro}
+      />
       <ModelViewer
         client:visible
         label={s.viewerLabel}
@@ -23,7 +30,7 @@ const status = (v: string | null) => (v === null ? '' : v === 'on' ? s.statusOn 
         noWebgl={t.hero.noWebgl}
       />
     </div>
-    <div class="panel">
+    <div class="panel" data-reveal>
       <h3>{s.statusTitle}</h3>
       <table>
         <thead>
@@ -59,13 +66,13 @@ const status = (v: string | null) => (v === null ? '' : v === 'on' ? s.statusOn 
 <style>
   .grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     align-items: start;
   }
   @media (min-width: 960px) {
     .grid {
-      grid-template-columns: 1.05fr 1fr;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     }
   }
   :global(.model-viewer) {
@@ -73,6 +80,8 @@ const status = (v: string | null) => (v === null ? '' : v === 'on' ? s.statusOn 
     height: clamp(320px, 50vw, 520px);
   }
   th[scope='row'] {
+    overflow-wrap: anywhere;
+    hyphens: auto;
     display: grid;
     gap: 0.1rem;
     color: var(--text);

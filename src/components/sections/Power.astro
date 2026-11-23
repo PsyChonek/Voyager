@@ -1,5 +1,6 @@
 ---
 import { useDict, type Locale } from '~/i18n';
+import SectionHead from '~/components/SectionHead.astro';
 
 interface Props {
   locale: Locale;
@@ -27,9 +28,14 @@ const ticksY = [0, 100, 200, 300, 400, 500];
 <section class="section" aria-labelledby="power-title">
   <div class="container grid">
     <div>
-      <h2 id="power-title">{p.title}</h2>
-      <p class="lead">{p.body}</p>
-      <ul class="events">
+      <SectionHead
+        num={5}
+        label={t.sections.power}
+        id="power-title"
+        title={p.title}
+        lead={p.body}
+      />
+      <ul class="events" data-reveal>
         {p.events.map((e) => (
           <li>
             <span class="mono">{e.year}</span> {e.text}
@@ -37,7 +43,7 @@ const ticksY = [0, 100, 200, 300, 400, 500];
         ))}
       </ul>
     </div>
-    <figure class="panel">
+    <figure class="panel" data-reveal="zoom">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="power-svg-title">
         <title id="power-svg-title">{p.chartLabel}</title>
         {ticksY.map((w) => (

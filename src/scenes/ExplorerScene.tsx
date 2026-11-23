@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { Vector3 } from 'three';
 import { loadEphemeris, positionAt, type Track, type Vec3 } from '~/lib/ephemeris';
 import { dateFromDay, dayFromDate, dayFromIso } from '~/lib/time';
-import { useWebGL } from '~/lib/motion';
+import { useReducedMotion, useWebGL } from '~/lib/motion';
 import { reportError } from '~/lib/errors';
 import type { ScaleMode } from '~/lib/scale';
 import { CRAFT, PLANETS, SolarSystem, type BodyKey, type PositionMap } from './SolarSystem';
@@ -122,6 +122,7 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
   const inView = useInView(wrap, '0px');
   const [tracks, setTracks] = useState<Record<string, Track> | null>(null);
   const support = useWebGL();
+  const reduced = useReducedMotion();
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(90);
   const [mode, setMode] = useState<ScaleMode>('log');
@@ -203,8 +204,8 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
               positions={positions}
               showTrails={trails}
               heliosphereRef={helio}
+              animate={!reduced}
             />
-            <LabelProjector positions={positions} els={labelEls} />
             <OrbitControls
               ref={controls}
               enableDamping
@@ -223,6 +224,7 @@ export default function ExplorerScene({ labels, locale }: { labels: Labels; loca
                 if (d >= MAX_DAY) setPlaying(false);
               }}
             />
+            <LabelProjector positions={positions} els={labelEls} />
           </Canvas>
         )}
         {support && tracks && <LabelOverlay labels={labelSpecs} els={labelEls} />}

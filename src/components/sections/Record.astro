@@ -1,5 +1,7 @@
 ---
 import Picture from '~/components/Picture.astro';
+import SectionHead from '~/components/SectionHead.astro';
+
 import { useDict, type Locale } from '~/i18n';
 
 interface Props {
@@ -19,7 +21,7 @@ const spots: Record<string, [number, number]> = {
 
 <section id="record" class="section" aria-labelledby="record-title">
   <div class="container grid">
-    <div class="cover">
+    <div class="cover" data-reveal="zoom">
       <Picture slug="golden-record-cover" locale={locale} sizes="(max-width: 960px) 100vw, 560px" />
       <div class="spots" role="group" aria-label={r.coverLabel}>
         {r.parts.map((p, i) => (
@@ -38,8 +40,13 @@ const spots: Record<string, [number, number]> = {
       </div>
     </div>
     <div>
-      <h2 id="record-title">{r.title}</h2>
-      <p class="lead">{r.intro}</p>
+      <SectionHead
+        num={6}
+        label={t.sections.record}
+        id="record-title"
+        title={r.title}
+        lead={r.intro}
+      />
       <div id="record-detail" class="panel" aria-live="polite">
         {r.parts.map((p, i) => (
           <div class="part" data-part={p.id} hidden={i !== 0}>
@@ -51,10 +58,12 @@ const spots: Record<string, [number, number]> = {
         ))}
       </div>
       <h3 class="contents-title">{r.contentsTitle}</h3>
-      <dl class="stats">
+      <dl class="stats" data-reveal>
         {r.contents.map((c) => (
           <div>
-            <dt class="mono">{c.value}</dt>
+            <dt class="mono" data-count={c.value}>
+              {c.value}
+            </dt>
             <dd>{c.label}</dd>
           </div>
         ))}
@@ -115,9 +124,33 @@ const spots: Record<string, [number, number]> = {
     font-weight: 700;
     cursor: pointer;
   }
+  .spot {
+    transition: transform 0.3s var(--ease-out);
+  }
+  .spot:hover {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+  .spot::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: spot-ping 2.4s var(--ease-out) infinite;
+    pointer-events: none;
+  }
+  @keyframes spot-ping {
+    to {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
   .spot[aria-pressed='true'] {
     background: var(--accent);
     color: var(--bg);
+  }
+  .cover :global(img) {
+    box-shadow: 0 40px 90px -30px rgb(255 160 60 / 0.35);
   }
   .num {
     color: var(--accent);

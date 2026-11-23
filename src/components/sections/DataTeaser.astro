@@ -1,5 +1,7 @@
 ---
 import ScienceChart from '~/components/ScienceChart';
+import SectionHead from '~/components/SectionHead.astro';
+
 import { useDict, routes, type Locale } from '~/i18n';
 
 interface Props {
@@ -17,9 +19,14 @@ const chartLabels = {
 
 <section class="section" aria-labelledby="teaser-title">
   <div class="container">
-    <h2 id="teaser-title">{t.dataTeaser.title}</h2>
-    <p class="lead">{t.dataTeaser.body}</p>
-    <figure class="panel">
+    <SectionHead
+      num={3}
+      label={t.sections.data}
+      id="teaser-title"
+      title={t.dataTeaser.title}
+      lead={t.dataTeaser.body}
+    />
+    <figure class="panel" data-reveal="zoom">
       <ScienceChart client:visible kind="heliopauseV1" labels={chartLabels} locale={locale} />
       <figcaption class="muted">{t.data.heliopauseV1.desc}</figcaption>
     </figure>

@@ -210,6 +210,7 @@ export default function JourneyScene(props: Props) {
             craft={['v1', 'v2']}
             positions={positions}
             heliosphereRef={helio}
+            animate={!instant}
           />
           <LabelProjector positions={positions} els={labelEls} />
           <Director

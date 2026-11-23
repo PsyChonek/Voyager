@@ -1,0 +1,24 @@
+---
+interface Props {
+  num: number;
+  label: string;
+  id: string;
+  title: string;
+  lead?: string;
+}
+const { num, label, id, title, lead } = Astro.props;
+---
+
+<div class="head" data-reveal>
+  <span class="section-num">
+    <b>{String(num).padStart(2, '0')}</b> / {label}
+  </span>
+  <h2 id={id}>{title}</h2>
+  {lead && <p class="lead">{lead}</p>}
+</div>
+
+<style>
+  .head {
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+</style>

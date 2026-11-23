@@ -1,5 +1,7 @@
 ---
 import Picture from '~/components/Picture.astro';
+import SectionHead from '~/components/SectionHead.astro';
+
 import images from '~/data/images.json';
 import { useDict, formatDate, type Locale } from '~/i18n';
 
@@ -21,10 +23,15 @@ const when = (d: string) =>
 
 <section id="gallery" class="section" aria-labelledby="gallery-title">
   <div class="container">
-    <h2 id="gallery-title">{g.title}</h2>
-    <p class="lead">{g.intro}</p>
+    <SectionHead
+      num={7}
+      label={t.sections.gallery}
+      id="gallery-title"
+      title={g.title}
+      lead={g.intro}
+    />
 
-    <div class="compare-wrap">
+    <div class="compare-wrap" data-reveal>
       <div>
         <h3>{g.compareTitle}</h3>
         <p class="muted">{g.compareBody}</p>
@@ -54,8 +61,8 @@ const when = (d: string) =>
     </div>
 
     <ul class="grid">
-      {items.map((img) => (
-        <li>
+      {items.map((img, i) => (
+        <li data-reveal style={`--i:${i % 3}`}>
           <figure>
             <button type="button" class="open" data-slug={img.slug} aria-label={img.title[locale]}>
               <Picture
@@ -206,8 +213,20 @@ const when = (d: string) =>
     object-fit: cover;
     transition: transform 0.4s;
   }
+  .open {
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
+  }
+  .open:hover,
+  .open:focus-visible {
+    transform: translateY(-6px) rotate(-0.6deg);
+    box-shadow:
+      0 24px 50px -20px rgb(255 140 70 / 0.45),
+      0 0 0 1px rgb(255 181 71 / 0.35);
+  }
   .open:hover :global(img) {
-    transform: scale(1.04);
+    transform: scale(1.07);
   }
   figcaption {
     display: grid;

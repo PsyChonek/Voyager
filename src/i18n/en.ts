@@ -53,6 +53,25 @@ const en: Dict = {
       '3D model of the Voyager spacecraft: a 3.7 metre dish antenna, the science boom and the radioisotope generators.',
     noWebgl: 'Your browser does not support WebGL, showing a still image instead.',
   },
+  ticker: [
+    { value: '1977', label: 'both probes launched' },
+    { value: '4', label: 'giant planets visited by Voyager 2' },
+    { value: '160 b/s', label: 'science data rate today' },
+    { value: '23 W', label: 'transmitter power' },
+    { value: '3.7 m', label: 'main antenna diameter' },
+    { value: '24 h', label: 'signal travel time from Voyager 1' },
+    { value: '55', label: 'languages on the Golden Record' },
+    { value: '2', label: 'probes in interstellar space' },
+  ],
+  sections: {
+    journey: 'Journey',
+    spacecraft: 'Spacecraft',
+    data: 'Data',
+    signal: 'Signal',
+    power: 'Power',
+    record: 'Golden Record',
+    gallery: 'Gallery',
+  },
   journey: {
     title: 'The journey',
     intro:
@@ -382,7 +401,7 @@ const en: Dict = {
   footer: {
     sources: 'Sources',
     sourcesBody:
-      'Trajectories: NASA JPL Horizons. Measurements: NASA SPDF COHOWeb (MAG, PLS, LECP, CRS). 3D model and images: NASA/JPL-Caltech, public domain. Live antenna status: NASA DSN Now.',
+      'Trajectories: NASA JPL Horizons. Measurements: NASA SPDF COHOWeb (MAG, PLS, LECP, CRS). 3D model and images: NASA/JPL-Caltech, public domain. Planet textures: Solar System Scope (CC BY 4.0). Live antenna status: NASA DSN Now.',
     privacy:
       'This site uses no cookies and collects no personal data. Any anonymous visit statistics are cookieless.',
     made: 'An independent fan project, not affiliated with NASA.',

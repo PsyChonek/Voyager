@@ -65,6 +65,10 @@ function markersPlugin(markers: Marker[]): uPlot.Plugin {
   };
 }
 
+let tickFmt = new Intl.NumberFormat('en', { maximumSignificantDigits: 2 });
+const ticks = (_: uPlot, splits: number[]) =>
+  splits.map((v) => (v == null ? '' : tickFmt.format(v)));
+
 function axis(label: string, side: 1 | 3 = 3, scale = 'y'): uPlot.Axis {
   return {
     scale,
@@ -73,6 +77,7 @@ function axis(label: string, side: 1 | 3 = 3, scale = 'y'): uPlot.Axis {
     stroke: C.text,
     grid: { stroke: C.grid, width: 1 },
     ticks: { stroke: C.grid },
+    values: ticks,
     size: 64,
     labelSize: 22,
   };
@@ -84,6 +89,7 @@ function build(
   L: Labels,
   locale: string,
 ): { data: AlignedData; opts: Omit<Options, 'width' | 'height'> } {
+  tickFmt = new Intl.NumberFormat(locale, { maximumSignificantDigits: 2 });
   const xAxis: uPlot.Axis = {
     stroke: C.text,
     grid: { stroke: C.grid, width: 1 },

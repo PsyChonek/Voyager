@@ -1,5 +1,7 @@
 ---
 import SignalSection from '~/components/SignalSection';
+import SectionHead from '~/components/SectionHead.astro';
+
 import { useDict, type Locale } from '~/i18n';
 
 interface Props {
@@ -11,8 +13,13 @@ const t = useDict(locale);
 
 <section id="signal" class="section" aria-labelledby="signal-title">
   <div class="container">
-    <h2 id="signal-title">{t.signal.title}</h2>
-    <p class="lead">{t.signal.body}</p>
+    <SectionHead
+      num={4}
+      label={t.sections.signal}
+      id="signal-title"
+      title={t.signal.title}
+      lead={t.signal.body}
+    />
     <SignalSection
       client:visible
       locale={locale}

@@ -1,5 +1,7 @@
 ---
 import JourneyScene from '~/scenes/JourneyScene';
+import SectionHead from '~/components/SectionHead.astro';
+
 import { useDict, type Locale } from '~/i18n';
 
 interface Props {
@@ -13,8 +15,13 @@ const b = t.explore.bodies;
 
 <section id="journey" class="journey" aria-labelledby="journey-title">
   <div class="container journey-head">
-    <h2 id="journey-title">{t.journey.title}</h2>
-    <p class="lead">{t.journey.intro}</p>
+    <SectionHead
+      num={1}
+      label={t.sections.journey}
+      id="journey-title"
+      title={t.journey.title}
+      lead={t.journey.intro}
+    />
   </div>
   <div class="journey-stage">
     <div class="journey-sticky">
@@ -52,6 +59,36 @@ const b = t.explore.bodies;
   </div>
 </section>
 
+<script>
+  const chapters = document.querySelectorAll<HTMLElement>('#journey .chapter');
+  const rail = document.querySelector<HTMLElement>('#journey .rail');
+  const links = document.querySelectorAll<HTMLAnchorElement>('#journey [data-rail]');
+  const activate = (id: string) => {
+    chapters.forEach((c) => c.classList.toggle('is-active', c.dataset.chapter === id));
+    links.forEach((l) => {
+      const on = l.dataset.rail === id;
+      l.classList.toggle('is-active', on);
+      if (on) l.setAttribute('aria-current', 'step');
+      else l.removeAttribute('aria-current');
+    });
+  };
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries)
+        if (e.isIntersecting) activate((e.target as HTMLElement).dataset.chapter!);
+    },
+    { rootMargin: '-45% 0px -45% 0px' },
+  );
+  chapters.forEach((c) => io.observe(c));
+  const stage = document.querySelector('#journey .journey-stage');
+  if (stage && rail) {
+    new IntersectionObserver(([e]) => rail.classList.toggle('is-shown', e.isIntersecting), {
+      rootMargin: '-30% 0px -30% 0px',
+    }).observe(stage);
+  }
+  if (chapters[0]) activate(chapters[0].dataset.chapter!);
+</script>
+
 <style>
   .journey {
     padding-top: clamp(64px, 10vw, 120px);
@@ -86,8 +123,111 @@ const b = t.explore.bodies;
     align-items: center;
   }
   .chapter article {
-    max-width: 440px;
+    max-width: 460px;
     pointer-events: auto;
+    overflow: hidden;
+  }
+  @media (scripting: enabled) {
+    .chapter article {
+      opacity: 0.08;
+      transform: translateY(30px) scale(0.97);
+      filter: blur(2px);
+      transition:
+        opacity 0.7s var(--ease-out),
+        transform 0.7s var(--ease-out),
+        filter 0.7s var(--ease-out);
+    }
+    .chapter.is-active article {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+  .big-num {
+    position: absolute;
+    right: 14px;
+    top: -6px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 5.5rem;
+    line-height: 1;
+    background: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+  .rail {
+    position: fixed;
+    right: clamp(10px, 2vw, 28px);
+    top: 50%;
+    transform: translate(16px, -50%);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.4s var(--ease-out),
+      transform 0.4s var(--ease-out);
+  }
+  .rail.is-shown {
+    opacity: 1;
+    transform: translate(0, -50%);
+    pointer-events: auto;
+  }
+  .rail ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .rail a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+    gap: 0.6rem;
+    min-height: 32px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+  }
+  .rail-label {
+    opacity: 0;
+    transform: translateX(6px);
+    transition: 0.3s var(--ease-out);
+    white-space: nowrap;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgb(4 6 12 / 0.7);
+  }
+  .rail a:hover .rail-label,
+  .rail a:focus-visible .rail-label,
+  .rail a.is-active .rail-label {
+    opacity: 1;
+    transform: none;
+  }
+  .rail a.is-active {
+    color: var(--text);
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--muted);
+    transition: 0.3s var(--ease-out);
+  }
+  .rail a.is-active .dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    transform: scale(1.3);
+  }
+  @media (max-width: 720px) {
+    .rail {
+      display: none;
+    }
   }
   .chapter h3 {
     font-size: clamp(1.6rem, 3vw, 2.2rem);

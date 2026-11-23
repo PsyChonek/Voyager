@@ -150,10 +150,48 @@ const graph = [
     </footer>
 
     <script>
+      import Lenis from 'lenis';
       import { initErrorReporting, reportError } from '~/lib/errors';
+
       initErrorReporting();
       window.addEventListener('error', (e) => reportError(e.error ?? e.message));
       window.addEventListener('unhandledrejection', (e) => reportError(e.reason));
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce) new Lenis({ autoRaf: true, anchors: true, lerp: 0.085 });
+
+      const bar = document.querySelector<HTMLElement>('.scroll-progress');
+      const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        bar?.style.setProperty('--p', String(max > 0 ? window.scrollY / max : 0));
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      const countUp = (el: HTMLElement) => {
+        const target = Number(el.dataset.count);
+        if (reduce || !Number.isFinite(target)) return;
+        const start = performance.now();
+        const step = (now: number) => {
+          const f = Math.min(1, (now - start) / 1400);
+          el.textContent = String(Math.round(target * (1 - Math.pow(1 - f, 3))));
+          if (f < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.classList.add('is-in');
+            e.target.querySelectorAll<HTMLElement>('[data-count]').forEach(countUp);
+            io.unobserve(e.target);
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
     </script>
   </body>
 </html>
@@ -177,7 +215,9 @@ const graph = [
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 50;
-    background: linear-gradient(to bottom, rgb(4 6 12 / 0.9), rgb(4 6 12 / 0));
+    background: rgb(4 6 12 / 0.72);
+    backdrop-filter: blur(12px) saturate(1.3);
+    border-bottom: 1px solid rgb(120 150 220 / 0.1);
   }
   .bar {
     display: flex;
