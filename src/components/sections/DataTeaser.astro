@@ -1,0 +1,40 @@
+---
+import ScienceChart from '~/components/ScienceChart';
+import { useDict, routes, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const chartLabels = {
+  ...t.data.series,
+  ...t.data.events,
+  loading: t.data.loading,
+  error: t.data.error,
+};
+---
+
+<section class="section" aria-labelledby="teaser-title">
+  <div class="container">
+    <h2 id="teaser-title">{t.dataTeaser.title}</h2>
+    <p class="lead">{t.dataTeaser.body}</p>
+    <figure class="panel">
+      <ScienceChart client:visible kind="heliopauseV1" labels={chartLabels} locale={locale} />
+      <figcaption class="muted">{t.data.heliopauseV1.desc}</figcaption>
+    </figure>
+    <a class="btn" href={routes.data[locale]}>
+      {t.dataTeaser.cta}
+    </a>
+  </div>
+</section>
+
+<style>
+  figure {
+    margin: 2rem 0;
+  }
+  figcaption {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
+</style>

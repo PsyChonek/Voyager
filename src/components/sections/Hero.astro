@@ -1,0 +1,79 @@
+---
+import LiveCounter from '~/components/LiveCounter';
+import HeroScene from '~/scenes/HeroScene';
+import live from '../../../public/data/live.json';
+import { liveState, type LiveData } from '~/lib/live';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const data = live as LiveData;
+const now = Date.now();
+const initial = { v1: liveState(data, 'v1', now), v2: liveState(data, 'v2', now) };
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <HeroScene client:idle label={t.hero.modelAlt} noWebgl={t.hero.noWebgl} />
+  <div class="container hero-inner">
+    <p class="kicker">{t.hero.kicker}</p>
+    <h1 id="hero-title">{t.hero.title}</h1>
+    <p class="lead">{t.hero.lead}</p>
+    <LiveCounter
+      client:load
+      locale={locale}
+      initial={initial}
+      generated={data.generated}
+      labels={{ ...t.hero, km: t.units.km, au: t.units.au, kms: t.units.kms }}
+    />
+    <p class="milestone">{t.hero.milestone}</p>
+    <a class="btn" href="#journey">
+      {t.hero.scroll}
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding-block: 120px 64px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero :global(.hero-canvas) {
+    position: absolute;
+    inset: 0 0 0 38%;
+    z-index: -1;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 75% 40%, rgb(255 181 71 / 0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+  }
+  .hero h1 {
+    max-width: 13ch;
+  }
+  .milestone {
+    max-width: 60ch;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin-block: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .hero :global(.hero-canvas) {
+      inset: 0;
+      opacity: 0.45;
+    }
+  }
+</style>

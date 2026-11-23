@@ -1,0 +1,107 @@
+---
+import JourneyScene from '~/scenes/JourneyScene';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const chapters = t.journey.chapters.map((c) => ({ id: c.id, date: c.date }));
+const b = t.explore.bodies;
+---
+
+<section id="journey" class="journey" aria-labelledby="journey-title">
+  <div class="container journey-head">
+    <h2 id="journey-title">{t.journey.title}</h2>
+    <p class="lead">{t.journey.intro}</p>
+  </div>
+  <div class="journey-stage">
+    <div class="journey-sticky">
+      <JourneyScene
+        client:visible
+        chapters={chapters}
+        locale={locale}
+        labels={{
+          v1: b.v1,
+          v2: b.v2,
+          earth: b.earth,
+          jupiter: b.jupiter,
+          saturn: b.saturn,
+          uranus: b.uranus,
+          neptune: b.neptune,
+        }}
+        heliosphereLabels={{ ts: t.explore.terminationShock, hp: t.explore.heliopause }}
+        sceneLabel={t.journey.sceneLabel}
+        dateLabel={t.journey.dateLabel}
+        loadingLabel={t.common.loading3d}
+        noWebgl={t.hero.noWebgl}
+      />
+    </div>
+    <ol class="chapters">
+      {t.journey.chapters.map((c) => (
+        <li id={`chapter-${c.id}`} class="chapter">
+          <article class="panel">
+            <p class="kicker">{c.label}</p>
+            <h3>{c.title}</h3>
+            <p>{c.body}</p>
+          </article>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .journey {
+    padding-top: clamp(64px, 10vw, 120px);
+  }
+  .journey-head {
+    margin-bottom: 2rem;
+  }
+  .journey-stage {
+    position: relative;
+  }
+  .journey-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+  .journey-sticky :global(.journey-canvas) {
+    position: absolute;
+    inset: 0;
+  }
+  .chapters {
+    list-style: none;
+    margin: -100svh 0 0;
+    padding: 0 var(--gutter);
+    position: relative;
+    max-width: var(--max);
+    margin-inline: auto;
+    pointer-events: none;
+  }
+  .chapter {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+  }
+  .chapter article {
+    max-width: 440px;
+    pointer-events: auto;
+  }
+  .chapter h3 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+  }
+  .chapter p:last-child {
+    margin-bottom: 0;
+  }
+  @media (max-width: 720px) {
+    .chapter {
+      align-items: flex-end;
+      padding-bottom: 12svh;
+    }
+    .chapter article {
+      font-size: 0.98rem;
+    }
+  }
+</style>

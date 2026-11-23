@@ -1,0 +1,7 @@
+dist
+.astro
+pnpm-lock.yaml
+public/data
+public/models
+public/images
+art-source

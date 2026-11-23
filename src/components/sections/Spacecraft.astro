@@ -1,0 +1,113 @@
+---
+import ModelViewer from '~/scenes/ModelViewer';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const s = t.spacecraft;
+const status = (v: string | null) => (v === null ? '' : v === 'on' ? s.statusOn : s.statusOff);
+---
+
+<section id="spacecraft" class="section" aria-labelledby="spacecraft-title">
+  <div class="container grid">
+    <div>
+      <h2 id="spacecraft-title">{s.title}</h2>
+      <p class="lead">{s.intro}</p>
+      <ModelViewer
+        client:visible
+        label={s.viewerLabel}
+        hint={s.rotateHint}
+        noWebgl={t.hero.noWebgl}
+      />
+    </div>
+    <div class="panel">
+      <h3>{s.statusTitle}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">&nbsp;</th>
+            <th scope="col" class="c">
+              V1
+            </th>
+            <th scope="col" class="c">
+              V2
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {s.instruments.map((i) => (
+            <tr>
+              <th scope="row">
+                <span class="abbr mono">{i.abbr}</span>
+                <span class="name">{i.name}</span>
+                <span class="desc muted">{i.desc}</span>
+              </th>
+              <td class="c">{i.v1 && <span class={`pill ${i.v1}`}>{status(i.v1)}</span>}</td>
+              <td class="c">{i.v2 && <span class={`pill ${i.v2}`}>{status(i.v2)}</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="muted small">{s.statusNote}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: 1.05fr 1fr;
+    }
+  }
+  :global(.model-viewer) {
+    position: relative;
+    height: clamp(320px, 50vw, 520px);
+  }
+  th[scope='row'] {
+    display: grid;
+    gap: 0.1rem;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .abbr {
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+  .name {
+    font-weight: 600;
+  }
+  .desc {
+    font-size: 0.88rem;
+  }
+  .c {
+    text-align: center;
+    vertical-align: top;
+    width: 4.5rem;
+  }
+  .pill {
+    display: inline-block;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    border: 1px solid currentColor;
+  }
+  .pill.on {
+    color: var(--ok);
+  }
+  .pill.off {
+    color: var(--off);
+  }
+  .small {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+  }
+</style>

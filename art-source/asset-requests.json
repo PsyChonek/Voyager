@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "purpose": "Queue of assets that still ship as placeholders or are wanted but missing. An image-generation model reads this file, produces proper artwork for each open request, and a coding agent integrates the result.",
+  "status_values": {
+    "placeholder": "Project ships a stand-in (code drawing, procedural icon or reused sprite). Needs real art.",
+    "requested": "Nothing ships yet. Needs real art before the feature can use it.",
+    "generated": "Master delivered under the group's master_dir, not yet wired into the project.",
+    "integrated": "Real art is in the project and its provenance is recorded. Entry can be deleted."
+  },
+  "workflow_for_generator": [
+    "Work only on requests whose status is placeholder or requested.",
+    "Read the group's output, style and prompt_template, then the request's subject and notes. Build the final prompt as prompt_template with {subject} replaced.",
+    "Attach the files listed in style.references and the group's references as style references. They are style guides, never edit targets.",
+    "Save each result unchanged at <group.output.master_dir>/<id>-v1.<group.output.format>. Never overwrite an existing version; bump to -v2 instead.",
+    "Save the exact prompt used at <group.output.prompt_dir>/<id>-v1.txt.",
+    "Set the request status to generated and fill generated.master, generated.prompt, generated.tool and generated.date (YYYY-MM-DD). Record model version and seed only if the tool exposes them; otherwise write null.",
+    "Do not edit project code, runtime atlases or provenance manifests. Integration is a separate coding step."
+  ],
+  "workflow_for_integration": [
+    "Pick up requests with status generated, export the sizes listed in the group spec into public/, replace the stand-in, then set status integrated or delete the entry.",
+    "Run pnpm check afterwards."
+  ],
+  "style": {
+    "id": "voyager_deepspace_v1",
+    "art_direction": "src/styles/global.css tokens and the live site screenshots. Dark deep-space background, warm gold accent like the Golden Record.",
+    "palette": "Background #04060c, panel #0b1020, text #e9edf5, gold accent #ffb547 with highlight #ffd38a, cyan #5ec8ff for Voyager 2.",
+    "references": [],
+    "forbidden": "No text, letters, NASA logos or insignia, no watermarks. Do not copy the NASA meatball or JPL logo."
+  },
+  "groups": {
+    "icons": {
+      "description": "Site favicon and app icons.",
+      "output": {
+        "format": "svg",
+        "spec": "Square SVG, viewBox 0 0 64 64, flat shapes, max 4 fills from the palette, must read at 16px. Also export PNG 180x180 (apple-touch-icon) and 512x512.",
+        "master_dir": "art-source/generated/icons",
+        "prompt_dir": "art-source/prompts/icons"
+      },
+      "references": [],
+      "prompt_template": "Asset type: a minimal favicon for a website about the Voyager space probes. Flat vector, dark background, gold accent. Subject: {subject}"
+    }
+  },
+  "requests": [
+    {
+      "id": "favicon",
+      "group": "icons",
+      "status": "placeholder",
+      "subject": "A simplified silhouette of the Voyager spacecraft seen from the front: the large round high-gain dish antenna dominant, a thin boom to one side, in gold on the dark background.",
+      "stand_in": "public/favicon.svg (code-drawn ring and dot)",
+      "notes": "Keep it recognizable at 16px; the dish shape carries it.",
+      "generated": null
+    }
+  ]
+}

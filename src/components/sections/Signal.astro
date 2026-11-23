@@ -1,0 +1,22 @@
+---
+import SignalSection from '~/components/SignalSection';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+---
+
+<section id="signal" class="section" aria-labelledby="signal-title">
+  <div class="container">
+    <h2 id="signal-title">{t.signal.title}</h2>
+    <p class="lead">{t.signal.body}</p>
+    <SignalSection
+      client:visible
+      locale={locale}
+      labels={{ ...t.signal, earth: t.explore.bodies.earth, v1: t.hero.v1, v2: t.hero.v2 }}
+    />
+  </div>
+</section>

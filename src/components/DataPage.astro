@@ -1,0 +1,138 @@
+---
+import Base from '~/layouts/Base.astro';
+import ScienceChart, { type ChartKind } from '~/components/ScienceChart';
+import { useDict, formatDate, formatNumber, type Locale } from '~/i18n';
+import { EVENTS } from '~/lib/science';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const d = t.data;
+const labels = { ...d.series, ...d.events, loading: d.loading, error: d.error };
+const charts: { kind: ChartKind; title: string; desc: string }[] = [
+  { kind: 'heliopauseV1', ...d.heliopauseV1 },
+  { kind: 'heliopauseV2', ...d.heliopauseV2 },
+  { kind: 'distance', ...d.distance },
+  { kind: 'field', ...d.field },
+  { kind: 'wind', ...d.wind },
+];
+const rows = [
+  { craft: 'Voyager 1', ev: d.events.ts, e: EVENTS.v1.ts },
+  { craft: 'Voyager 2', ev: d.events.ts, e: EVENTS.v2.ts },
+  { craft: 'Voyager 1', ev: d.events.hp, e: EVENTS.v1.hp },
+  { craft: 'Voyager 2', ev: d.events.hp, e: EVENTS.v2.hp },
+];
+const site = Astro.site!;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: d.h1,
+    description: t.meta.dataDescription,
+    inLanguage: locale,
+    isAccessibleForFree: true,
+    creator: { '@type': 'Organization', name: 'NASA Space Physics Data Facility' },
+    distribution: [
+      {
+        '@type': 'DataDownload',
+        encodingFormat: 'application/json',
+        contentUrl: new URL('/data/science.json', site).href,
+      },
+    ],
+    temporalCoverage: '1977-09-05/2025-12-31',
+    url: new URL(locale === 'cs' ? '/data/' : '/en/data/', site).href,
+  },
+];
+---
+
+<Base
+  locale={locale}
+  route="data"
+  title={t.meta.dataTitle}
+  description={t.meta.dataDescription}
+  jsonLd={jsonLd}
+>
+  <div class="container page">
+    <h1>{d.h1}</h1>
+    <p class="lead">{d.intro}</p>
+
+    <section class="panel facts" aria-labelledby="facts-title">
+      <h2 id="facts-title">{d.keyFacts}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{d.tableEvent}</th>
+            <th scope="col">{d.tableDate}</th>
+            <th scope="col" class="num">
+              {d.tableDistance}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">
+                {r.craft}: {r.ev}
+              </th>
+              <td>{formatDate(locale, new Date(`${r.e.date}T12:00:00Z`))}</td>
+              <td class="num">{formatNumber(locale, r.e.au, r.e.au % 1 ? 1 : 0)} AU</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+
+    {charts.map((c) => (
+      <section class="chart-block" aria-labelledby={`chart-${c.kind}`}>
+        <h2 id={`chart-${c.kind}`}>{c.title}</h2>
+        <p class="muted">{c.desc}</p>
+        <div class="panel">
+          <ScienceChart client:visible kind={c.kind} labels={labels} locale={locale} />
+        </div>
+      </section>
+    ))}
+
+    <section aria-labelledby="sources-title" class="chart-block">
+      <h2 id="sources-title">{d.sources}</h2>
+      <ul>
+        <li>
+          <a href="https://spdf.gsfc.nasa.gov/pub/data/voyager/" rel="noopener">
+            NASA SPDF: Voyager merged data (COHOWeb)
+          </a>
+        </li>
+        <li>
+          <a href="https://ssd.jpl.nasa.gov/horizons/" rel="noopener">
+            NASA JPL Horizons
+          </a>
+        </li>
+        <li>
+          <a href="/data/science.json" download>
+            {d.download}
+          </a>
+        </li>
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 110px;
+    padding-bottom: 64px;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+  }
+  .facts {
+    margin-block: 2rem 3rem;
+  }
+  .facts h2,
+  .chart-block h2 {
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  }
+  .chart-block {
+    margin-bottom: 3.5rem;
+  }
+</style>

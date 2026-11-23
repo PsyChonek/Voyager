@@ -1,0 +1,43 @@
+---
+import images from '~/data/images.json';
+import type { Locale } from '~/i18n';
+
+interface Props {
+  slug: string;
+  locale: Locale;
+  sizes?: string;
+  eager?: boolean;
+  class?: string;
+  alt?: string;
+}
+
+const {
+  slug,
+  locale,
+  sizes = '(max-width: 800px) 100vw, 800px',
+  eager = false,
+  class: cls,
+  alt,
+} = Astro.props;
+const img = images.find((i) => i.slug === slug);
+if (!img) throw new Error(`Unknown image ${slug}`);
+const w800 = Math.min(800, img.width);
+const h = Math.round((img.height / img.width) * w800);
+const set = (ext: string) =>
+  img.width > 800
+    ? `/images/${slug}-800.${ext} 800w, /images/${slug}-1600.${ext} ${img.width}w`
+    : `/images/${slug}-800.${ext} ${img.width}w`;
+---
+
+<picture class={cls}>
+  {img.formats.includes('avif') && <source type="image/avif" srcset={set('avif')} sizes={sizes} />}
+  <source type="image/webp" srcset={set('webp')} sizes={sizes} />
+  <img
+    src={`/images/${slug}-800.webp`}
+    width={w800}
+    height={h}
+    alt={alt ?? img.title[locale]}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+</picture>

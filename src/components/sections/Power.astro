@@ -1,0 +1,124 @@
+---
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const p = t.power;
+
+// Approximate model only: 470 W at launch, about 4 W lost per year.
+const Y0 = 1977;
+const Y1 = 2036;
+const W = 720;
+const H = 300;
+const pad = { l: 52, r: 16, t: 20, b: 36 };
+const x = (y: number) => pad.l + ((y - Y0) / (Y1 - Y0)) * (W - pad.l - pad.r);
+const yv = (w: number) => pad.t + (1 - w / 500) * (H - pad.t - pad.b);
+const power = (y: number) => 470 - 4 * (y - Y0);
+const nowYear = new Date().getUTCFullYear() + new Date().getUTCMonth() / 12;
+const past = `M ${x(Y0)} ${yv(power(Y0))} L ${x(nowYear)} ${yv(power(nowYear))}`;
+const future = `M ${x(nowYear)} ${yv(power(nowYear))} L ${x(Y1)} ${yv(power(Y1))}`;
+const ticksX = [1980, 1990, 2000, 2010, 2020, 2030];
+const ticksY = [0, 100, 200, 300, 400, 500];
+---
+
+<section class="section" aria-labelledby="power-title">
+  <div class="container grid">
+    <div>
+      <h2 id="power-title">{p.title}</h2>
+      <p class="lead">{p.body}</p>
+      <ul class="events">
+        {p.events.map((e) => (
+          <li>
+            <span class="mono">{e.year}</span> {e.text}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <figure class="panel">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="power-svg-title">
+        <title id="power-svg-title">{p.chartLabel}</title>
+        {ticksY.map((w) => (
+          <g>
+            <line x1={pad.l} x2={W - pad.r} y1={yv(w)} y2={yv(w)} stroke="#1f2a44" />
+            <text x={pad.l - 8} y={yv(w) + 4} text-anchor="end" fill="#a3aec2" font-size="12">
+              {w}
+            </text>
+          </g>
+        ))}
+        {ticksX.map((y) => (
+          <text x={x(y)} y={H - 12} text-anchor="middle" fill="#a3aec2" font-size="12">
+            {y}
+          </text>
+        ))}
+        <text x="14" y={pad.t + 4} fill="#a3aec2" font-size="12">
+          {p.watts}
+        </text>
+        {p.events.map((e, i) => (
+          <g>
+            <line
+              x1={x(e.year)}
+              x2={x(e.year)}
+              y1={pad.t}
+              y2={H - pad.b}
+              stroke="#ff7aa8"
+              stroke-dasharray="3 4"
+              opacity="0.6"
+            />
+            <text x={x(e.year) + 4} y={H - pad.b - 8 - (i % 3) * 16} fill="#ff9dc0" font-size="11">
+              {e.text}
+            </text>
+          </g>
+        ))}
+        <path d={past} stroke="#ffb547" stroke-width="3" fill="none" />
+        <path
+          d={future}
+          stroke="#ffb547"
+          stroke-width="2"
+          stroke-dasharray="6 6"
+          fill="none"
+          opacity="0.6"
+        />
+        <circle cx={x(nowYear)} cy={yv(power(nowYear))} r="5" fill="#ffb547" />
+      </svg>
+      <figcaption class="muted small">{p.modelNote}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+  figure {
+    margin: 0;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+  }
+  .events {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .events .mono {
+    color: var(--accent);
+    margin-right: 0.6rem;
+  }
+  .small {
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+</style>

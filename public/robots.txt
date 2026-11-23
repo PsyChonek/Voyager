@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://voyager.vazac.dev/sitemap-index.xml

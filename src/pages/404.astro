@@ -1,0 +1,33 @@
+---
+import Base from '~/layouts/Base.astro';
+import { useDict, routes } from '~/i18n';
+const t = useDict('cs');
+const en = useDict('en');
+---
+
+<Base locale="cs" route={null} title={t.meta.notFoundTitle} description={t.notFound.body} noindex>
+  <div class="container nf">
+    <h1>{t.notFound.h1}</h1>
+    <p class="lead">{t.notFound.body}</p>
+    <p lang="en" class="muted">
+      {en.notFound.body}
+    </p>
+    <a class="btn" href={routes.home.cs}>
+      {t.notFound.back}
+    </a>
+    <a class="btn" href={routes.home.en} lang="en">
+      {en.notFound.back}
+    </a>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    min-height: 80svh;
+    padding-top: 140px;
+  }
+  .btn {
+    margin-right: 0.75rem;
+    margin-top: 1rem;
+  }
+</style>

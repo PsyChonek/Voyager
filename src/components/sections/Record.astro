@@ -1,0 +1,153 @@
+---
+import Picture from '~/components/Picture.astro';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+const r = t.record;
+// Hotspot positions (percent of the photo) for each engraved diagram.
+const spots: Record<string, [number, number]> = {
+  hydrogen: [33, 24.5],
+  pulsar: [67.5, 33],
+  image: [35, 56],
+  playback: [70.5, 65],
+};
+---
+
+<section id="record" class="section" aria-labelledby="record-title">
+  <div class="container grid">
+    <div class="cover">
+      <Picture slug="golden-record-cover" locale={locale} sizes="(max-width: 960px) 100vw, 560px" />
+      <div class="spots" role="group" aria-label={r.coverLabel}>
+        {r.parts.map((p, i) => (
+          <button
+            type="button"
+            class="spot"
+            style={`left:${spots[p.id][0]}%;top:${spots[p.id][1]}%`}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            aria-controls="record-detail"
+            data-part={p.id}
+          >
+            <span class="visually-hidden">{p.title}</span>
+            <span aria-hidden="true">{i + 1}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+    <div>
+      <h2 id="record-title">{r.title}</h2>
+      <p class="lead">{r.intro}</p>
+      <div id="record-detail" class="panel" aria-live="polite">
+        {r.parts.map((p, i) => (
+          <div class="part" data-part={p.id} hidden={i !== 0}>
+            <h3>
+              <span class="num mono">{i + 1}</span> {p.title}
+            </h3>
+            <p>{p.body}</p>
+          </div>
+        ))}
+      </div>
+      <h3 class="contents-title">{r.contentsTitle}</h3>
+      <dl class="stats">
+        {r.contents.map((c) => (
+          <div>
+            <dt class="mono">{c.value}</dt>
+            <dd>{c.label}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="muted small">{r.musicNote}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.getElementById('record');
+  root?.querySelectorAll<HTMLButtonElement>('.spot').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.part;
+      root
+        .querySelectorAll<HTMLButtonElement>('.spot')
+        .forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      root
+        .querySelectorAll<HTMLElement>('.part')
+        .forEach((p) => (p.hidden = p.dataset.part !== id));
+    });
+  });
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: minmax(0, 560px) 1fr;
+    }
+  }
+  .cover {
+    position: relative;
+  }
+  .cover :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+  }
+  .spots {
+    position: absolute;
+    inset: 0;
+  }
+  .spot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: rgb(4 6 12 / 0.75);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .spot[aria-pressed='true'] {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .num {
+    color: var(--accent);
+    margin-right: 0.3rem;
+  }
+  .contents-title {
+    margin-top: 2rem;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+  @media (min-width: 600px) {
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .stats dt {
+    font-size: 2rem;
+    color: var(--accent);
+  }
+  .stats dd {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .small {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+  }
+</style>

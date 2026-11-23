@@ -1,0 +1,302 @@
+[
+  {
+    "slug": "launch-voyager-1",
+    "pia": "PIA21746",
+    "sourceUrl": "https://science.nasa.gov/photojournal/voyager-1-launch/",
+    "credit": "NASA/JPL-Caltech/KSC",
+    "date": "1977-09-05",
+    "craft": "V1",
+    "target": "Launch",
+    "width": 1600,
+    "height": 2025,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Start sondy Voyager 1",
+      "en": "Voyager 1 launch"
+    },
+    "caption": {
+      "cs": "Voyager 1 odstartoval na nosné raketě Titan/Centaur-6 z Kennedyho vesmírného střediska na Floridě 5. září 1977 v 8:56 místního času.",
+      "en": "Voyager 1 launched atop its Titan/Centaur-6 launch vehicle from the Kennedy Space Center in Florida on September 5, 1977, at 8:56 a.m. local time."
+    }
+  },
+  {
+    "slug": "jupiter-great-red-spot",
+    "pia": "PIA00014",
+    "sourceUrl": "https://science.nasa.gov/photojournal/jupiter-great-red-spot/",
+    "credit": "NASA/JPL",
+    "date": "1979-02-25",
+    "craft": "V1",
+    "target": "Jupiter",
+    "width": 895,
+    "height": 848,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Velká rudá skvrna na Jupiteru",
+      "en": "Jupiter's Great Red Spot"
+    },
+    "caption": {
+      "cs": "Voyager 1 zachytil Velkou rudou skvrnu a její okolí 25. února 1979 ze vzdálenosti 9,2 milionu kilometrů od Jupiteru. Jsou vidět detaily oblačnosti o velikosti pouhých 160 kilometrů.",
+      "en": "Voyager 1 captured Jupiter's Great Red Spot and its surroundings on February 25, 1979, from 9.2 million kilometers away. Cloud details as small as 160 kilometers across are visible."
+    }
+  },
+  {
+    "slug": "io-loki-plume",
+    "pia": "PIA00010",
+    "sourceUrl": "https://science.nasa.gov/photojournal/io-with-loki-plume-on-bright-limb/",
+    "credit": "NASA/JPL/USGS",
+    "date": "1979-03",
+    "craft": "V1",
+    "target": "Io",
+    "width": 684,
+    "height": 803,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Sopečný oblak Loki na Io",
+      "en": "Io's Loki plume"
+    },
+    "caption": {
+      "cs": "Mozaika ze sondy Voyager 1 ukazuje aktivní sopečný oblak Loki na okraji měsíce Io. Útvar ve tvaru srdce jihovýchodně od Loki tvoří spad z dalšího aktivního oblaku Pele.",
+      "en": "This Voyager 1 mosaic shows the active volcanic plume of Loki on Io's limb. The heart-shaped feature southeast of Loki consists of fallout deposits from the active plume Pele."
+    }
+  },
+  {
+    "slug": "europa",
+    "pia": "PIA00459",
+    "sourceUrl": "https://science.nasa.gov/photojournal/pj-europa-during-voyager-2-closest-approach/",
+    "credit": "NASA/JPL",
+    "date": "1979-07-09",
+    "craft": "V2",
+    "target": "Europa",
+    "width": 704,
+    "height": 680,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Europa",
+      "en": "Europa"
+    },
+    "caption": {
+      "cs": "Voyager 2 pořídil tento barevný snímek Jupiterova měsíce Europa při těsném průletu 9. července 1979. Složitá síť pruhů naznačuje, že ledová kůra popraskala a trhliny vyplnil materiál z nitra.",
+      "en": "Voyager 2 acquired this color image of Jupiter's moon Europa during its close encounter on July 9, 1979. The complex array of streaks indicates that the icy crust has been fractured and filled by materials from the interior."
+    }
+  },
+  {
+    "slug": "saturn",
+    "pia": "PIA01383",
+    "sourceUrl": "https://science.nasa.gov/photojournal/saturn-and-its-satellites-tethys-enceladus-and-mimas/",
+    "credit": "NASA/JPL",
+    "date": "1980-10-30",
+    "craft": "V1",
+    "target": "Saturn",
+    "width": 1500,
+    "height": 2000,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Saturn a jeho měsíce",
+      "en": "Saturn and its moons"
+    },
+    "caption": {
+      "cs": "Voyager 1 pořídil tuto mozaiku Saturnu s měsíci Tethys, Enceladus a Mimas 30. října 1980 ze vzdálenosti 18 milionů kilometrů. Jemný, sametový vzhled oblačných pásů způsobuje vrstva oparu nad oblačností.",
+      "en": "Voyager 1 took this mosaic of Saturn and its moons Tethys, Enceladus and Mimas on October 30, 1980, from 18 million kilometers. The soft, velvety look of the cloud bands comes from a haze layer above the planet's cloud deck."
+    }
+  },
+  {
+    "slug": "saturn-rings",
+    "pia": "PIA01486",
+    "sourceUrl": "https://science.nasa.gov/photojournal/composition-differences-within-saturns-rings/",
+    "credit": "NASA/JPL",
+    "date": "1981-08-17",
+    "craft": "V2",
+    "target": "Saturn rings",
+    "width": 1098,
+    "height": 857,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Barvy Saturnových prstenců",
+      "en": "Colors of Saturn's rings"
+    },
+    "caption": {
+      "cs": "Tento barevně silně zvýrazněný snímek ze sondy Voyager 2, pořízený 17. srpna 1981 ze vzdálenosti 8,9 milionu kilometrů, odhaluje jemné barevné rozdíly v prstencích. Mohou ukazovat na rozdílné chemické složení jednotlivých částí prstenců.",
+      "en": "This highly enhanced color view from Voyager 2, taken on August 17, 1981, from 8.9 million kilometers, brings out subtle color differences across Saturn's rings. They may reflect variations in chemical composition from one part of the ring system to another."
+    }
+  },
+  {
+    "slug": "titan-haze",
+    "pia": "PIA01533",
+    "sourceUrl": "https://science.nasa.gov/photojournal/titan-haze/",
+    "credit": "NASA/JPL",
+    "date": "1980-11-12",
+    "craft": "V1",
+    "target": "Titan",
+    "width": 1600,
+    "height": 1703,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Vrstvy oparu na Titanu",
+      "en": "Titan's haze layers"
+    },
+    "caption": {
+      "cs": "Voyager 1 vyfotografoval vrstvy oparu nad Saturnovým měsícem Titan 12. listopadu 1980 ze vzdálenosti 22 000 kilometrů. Nepravé barvy zvýrazňují předěly v oparu ve výškách 200, 375 a 500 kilometrů nad okrajem měsíce.",
+      "en": "Voyager 1 imaged the layers of haze covering Saturn's moon Titan on November 12, 1980, from 22,000 kilometers. The false colors show divisions in the haze at altitudes of 200, 375 and 500 kilometers above the limb."
+    }
+  },
+  {
+    "slug": "uranus",
+    "pia": "PIA18182",
+    "sourceUrl": "https://science.nasa.gov/photojournal/uranus-as-seen-by-nasas-voyager-2/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "1986-01",
+    "craft": "V2",
+    "target": "Uranus",
+    "width": 1600,
+    "height": 1600,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Uran",
+      "en": "Uranus"
+    },
+    "caption": {
+      "cs": "Voyager 2 pořídil tento snímek planety Uran v roce 1986. Modrozelenou barvu planetě dávají stopy metanu v atmosféře, které pohlcují červenější vlnové délky.",
+      "en": "Voyager 2 took this image of the planet Uranus in 1986. The planet's blue-green color comes from traces of methane in the atmosphere absorbing redder wavelengths."
+    }
+  },
+  {
+    "slug": "miranda",
+    "pia": "PIA18185",
+    "sourceUrl": "https://science.nasa.gov/photojournal/mirandas-icy-face/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "1986-01-24",
+    "craft": "V2",
+    "target": "Miranda",
+    "width": 571,
+    "height": 574,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Miranda",
+      "en": "Miranda"
+    },
+    "caption": {
+      "cs": "Voyager 2 zachytil ledový Uranův měsíc Mirandu 24. ledna 1986. Miranda měří pouhých 480 kilometrů a je nejmenším z pěti velkých Uranových měsíců.",
+      "en": "Voyager 2 captured Uranus' icy moon Miranda on January 24, 1986. Just 480 kilometers across, Miranda is the smallest of Uranus' five major moons."
+    }
+  },
+  {
+    "slug": "neptune-great-dark-spot",
+    "pia": "PIA01492",
+    "sourceUrl": "https://science.nasa.gov/photojournal/neptune-full-disk-view/",
+    "credit": "NASA/JPL",
+    "date": "1989-08",
+    "craft": "V2",
+    "target": "Neptune",
+    "width": 1600,
+    "height": 1598,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Neptun a Velká tmavá skvrna",
+      "en": "Neptune and the Great Dark Spot"
+    },
+    "caption": {
+      "cs": "Snímek vznikl z posledních záběrů celé planety, které úzkoúhlá kamera sondy Voyager 2 pořídila 4 dny a 20 hodin před největším přiblížením. Je na něm Velká tmavá skvrna s jasným doprovodným oblakem a u západního okraje rychlý světlý útvar Scooter a malá tmavá skvrna.",
+      "en": "This picture comes from the last whole-planet images taken by Voyager 2's narrow-angle camera, 4 days and 20 hours before closest approach. It shows the Great Dark Spot and its bright companion, and on the west limb the fast-moving bright feature called Scooter and the little dark spot."
+    }
+  },
+  {
+    "slug": "triton",
+    "pia": "PIA00317",
+    "sourceUrl": "https://science.nasa.gov/photojournal/global-color-mosaic-of-triton/",
+    "credit": "NASA/JPL/USGS",
+    "date": "1989-08",
+    "craft": "V2",
+    "target": "Triton",
+    "width": 1600,
+    "height": 1244,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Triton",
+      "en": "Triton"
+    },
+    "caption": {
+      "cs": "Globální barevná mozaika Neptunova měsíce Triton ze snímků sondy Voyager 2 z roku 1989. Narůžovělé usazeniny tvoří rozsáhlou jižní polární čepičku a tmavé pruhy na ní jsou nejspíš prach z obřích výtrysků podobných gejzírům.",
+      "en": "This global color mosaic of Neptune's moon Triton was made from images taken by Voyager 2 in 1989. The pinkish deposits form a vast south polar cap, and the dark streaks on it are believed to be dust deposited from huge geyser-like plumes."
+    }
+  },
+  {
+    "slug": "family-portrait",
+    "pia": "PIA00451",
+    "sourceUrl": "https://science.nasa.gov/photojournal/solar-system-portrait-60-frame-mosaic/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "1990-02-14",
+    "craft": "V1",
+    "target": "Solar System",
+    "width": 1600,
+    "height": 480,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Rodinný portrét Sluneční soustavy",
+      "en": "Family portrait of the Solar System"
+    },
+    "caption": {
+      "cs": "Dne 14. února 1990 namířil Voyager 1 kamery zpět ke Slunci a pořídil sérii 60 snímků, vůbec první portrét Sluneční soustavy zvenčí. Mozaika z 39 širokoúhlých snímků spojuje šest planet.",
+      "en": "On February 14, 1990, Voyager 1 pointed its cameras back toward the Sun and took a series of 60 frames, the first ever portrait of our solar system as seen from the outside. Thirty-nine wide-angle frames link together six of the planets in this mosaic."
+    }
+  },
+  {
+    "slug": "pale-blue-dot-1990",
+    "pia": "PIA00452",
+    "sourceUrl": "https://science.nasa.gov/photojournal/solar-system-portrait-earth-as-pale-blue-dot/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "1990-02-14",
+    "craft": "V1",
+    "target": "Earth",
+    "width": 1200,
+    "height": 1626,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Bledě modrá tečka (1990)",
+      "en": "Pale Blue Dot (1990)"
+    },
+    "caption": {
+      "cs": "Voyager 1 vyfotografoval Zemi úzkoúhlou kamerou z více než 6 miliard kilometrů jako součást prvního rodinného portrétu Sluneční soustavy. Země má podobu srpku o velikosti pouhých 0,12 pixelu a shodou okolností leží přímo uprostřed jednoho z paprsků rozptýleného slunečního světla.",
+      "en": "Voyager 1 took this narrow-angle color image of Earth from more than 4 billion miles away as part of the first family portrait of the solar system. Earth was a crescent only 0.12 pixels in size, and by coincidence it lies right in the center of one of the scattered light rays."
+    }
+  },
+  {
+    "slug": "pale-blue-dot-2020",
+    "pia": "PIA23645",
+    "sourceUrl": "https://science.nasa.gov/photojournal/pale-blue-dot-revisited/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "2020-02-12",
+    "craft": "V1",
+    "target": "Earth",
+    "width": 1200,
+    "height": 1626,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Bledě modrá tečka, nové zpracování (2020)",
+      "en": "Pale Blue Dot Revisited (2020)"
+    },
+    "caption": {
+      "cs": "K 30. výročí slavného snímku vznikla nová verze, která využívá moderní software a techniky zpracování obrazu a zároveň se snaží respektovat původní data i záměr autorů. Země je jasná, jemně modrá tečka uvnitř slunečního paprsku.",
+      "en": "For the 30th anniversary of the Pale Blue Dot, this new version uses modern image-processing software and techniques while attempting to respect the original data and intent. Earth is visible as a bright, softly blue speck within the sunbeam."
+    }
+  },
+  {
+    "slug": "golden-record-cover",
+    "pia": "PIA14113",
+    "sourceUrl": "https://science.nasa.gov/photojournal/voyagers-special-cargo-the-golden-record/",
+    "credit": "NASA/JPL-Caltech",
+    "date": "2011-04-29",
+    "craft": "V1",
+    "target": "Golden Record",
+    "width": 1600,
+    "height": 2009,
+    "formats": ["webp", "avif"],
+    "title": {
+      "cs": "Obal Zlaté desky",
+      "en": "Golden Record cover"
+    },
+    "caption": {
+      "cs": "Obě sondy Voyager nesou 12palcovou pozlacenou gramofonovou desku s obrázky a zvuky ze Země. Na obalu je návod, jak desku přehrát, schéma polohy našeho Slunce a dva nejnižší stavy atomu vodíku jako základní časové měřítko.",
+      "en": "Each Voyager carries a 12-inch gold-plated phonograph record with images and sounds from Earth. The cover carries directions explaining how to play the record, a diagram showing the location of our Sun and the two lowest states of the hydrogen atom as a fundamental clock reference."
+    }
+  }
+]

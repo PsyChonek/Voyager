@@ -1,0 +1,38 @@
+---
+import Base from '~/layouts/Base.astro';
+import ExplorerScene from '~/scenes/ExplorerScene';
+import { useDict, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+---
+
+<Base
+  locale={locale}
+  route="explore"
+  title={t.meta.exploreTitle}
+  description={t.meta.exploreDescription}
+>
+  <div class="container page">
+    <h1>{t.explore.h1}</h1>
+    <p class="lead">{t.explore.intro}</p>
+    <ExplorerScene
+      client:load
+      locale={locale}
+      labels={{ ...t.explore, loading: t.explore.loading }}
+    />
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 110px;
+    padding-bottom: 64px;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+  }
+</style>

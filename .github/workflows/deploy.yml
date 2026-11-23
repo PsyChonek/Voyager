@@ -1,0 +1,29 @@
+name: Deploy
+
+# Tag-triggered deploy, plus a weekly rebuild so the live ephemeris window
+# (live.json covers ~450 days ahead) and science data stay fresh.
+on:
+  push:
+    tags: ['v*']
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64, local]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm data
+      - run: pnpm build
+      - run: bash scripts/deploy-website.sh
